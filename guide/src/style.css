@@ -1,0 +1,204 @@
+/* Layout: липкая панель вкладок сверху, одна колонка чтения ~860px; таблицы и код скроллятся внутри себя.
+   Медная «дорожка печатной платы» как акцент, OLED-экраны пиксельным шрифтом как в заданиях. */
+:root {
+  --bg: #f3f5f7;
+  --surface: #ffffff;
+  --ink: #17202b;
+  --muted: #5b6676;
+  --line: #d8dee6;
+  --copper: #a3521b;
+  --copper-soft: #f7e9de;
+  --info-soft: #e7f0f8;
+  --ok: #24724a;
+  --warn: #9a6408;
+  --bad: #b42318;
+  --oled-bg: #070c14;
+  --oled-fg: #8fd8ff;
+  --oled-frame: #23262c;
+  --code-bg: #f6f7f9;
+  --kw: #7a3fb0;
+  --str: #1f6f43;
+  --com: #8a8f98;
+  --num: #a3521b;
+  --f-display: "Unbounded", "Golos Text", system-ui, sans-serif;
+  --f-body: "Golos Text", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --f-pixel: "Press Start 2P", "Courier New", monospace;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f141a; --surface: #161d26; --ink: #e5eaf0; --muted: #9ca8b6; --line: #2a3542;
+    --copper: #e39a63; --copper-soft: #2c2018; --info-soft: #172433;
+    --ok: #63c48f; --warn: #e3b55a; --bad: #f2867a;
+    --oled-frame: #2c3038; --code-bg: #111821;
+    --kw: #c79bf2; --str: #7fd19f; --com: #7d8794; --num: #e39a63;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f141a; --surface: #161d26; --ink: #e5eaf0; --muted: #9ca8b6; --line: #2a3542;
+  --copper: #e39a63; --copper-soft: #2c2018; --info-soft: #172433;
+  --ok: #63c48f; --warn: #e3b55a; --bad: #f2867a;
+  --oled-frame: #2c3038; --code-bg: #111821;
+  --kw: #c79bf2; --str: #7fd19f; --com: #7d8794; --num: #e39a63;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 16px/1.6 var(--f-body);
+  -webkit-text-size-adjust: 100%;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--surface);
+}
+a { color: var(--copper); }
+code, kbd { font-family: var(--f-mono); font-size: .88em; }
+:not(pre) > code { background: var(--code-bg); border: 1px solid var(--line); border-radius: 5px; padding: 0 .3em; overflow-wrap: anywhere; }
+kbd { border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 .35em; background: var(--surface); }
+:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+
+.wrap {
+  max-width: 900px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* ---------- шапка и вкладки ---------- */
+header.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--surface); border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; padding-block: 10px 4px; }
+.brand b { font-family: var(--f-display); font-weight: 700; font-size: 1.05rem; letter-spacing: .01em; }
+.brand span { color: var(--muted); font-size: .85rem; }
+nav.tabs { display: flex; gap: 4px; overflow-x: auto; padding-block: 4px 8px; scrollbar-width: none; }
+nav.tabs::-webkit-scrollbar { display: none; }
+nav.tabs a {
+  flex: none; text-decoration: none; color: var(--muted); font-weight: 500; font-size: .92rem;
+  padding: 6px 12px; border-radius: 999px; border: 1px solid transparent;
+}
+nav.tabs a:hover { color: var(--ink); border-color: var(--line); }
+nav.tabs a[aria-current="page"] { color: var(--copper); background: var(--copper-soft); border-color: var(--copper); }
+
+main { padding-block: 24px 64px; }
+section.view { display: grid; gap: 22px; }
+h1, h2, h3 { text-wrap: balance; line-height: 1.25; margin: 0; }
+h1 { font-family: var(--f-display); font-weight: 700; font-size: clamp(1.6rem, 4.5vw, 2.3rem); letter-spacing: -.01em; }
+h2 { font-family: var(--f-display); font-weight: 500; font-size: 1.35rem; margin-top: 14px; }
+h3 { font-size: 1.08rem; font-weight: 700; margin-top: 6px; }
+p, ul, ol { margin: 0; }
+ul, ol { padding-left: 1.3em; display: grid; gap: 4px; }
+.lead { font-size: 1.08rem; color: var(--muted); max-width: 68ch; }
+.eyebrow { font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; color: var(--copper); font-weight: 600; }
+.prose { display: grid; gap: 10px; max-width: 72ch; }
+.muted { color: var(--muted); }
+
+/* ---------- блоки ---------- */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; display: grid; gap: 10px; min-width: 0; }
+.note { border-left: 3px solid var(--copper); background: var(--copper-soft); padding: 12px 14px; border-radius: 0 var(--radius) var(--radius) 0; display: grid; gap: 6px; }
+.note.info { border-left-color: var(--muted); background: var(--info-soft); }
+.note b:first-child { font-weight: 700; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.grid2 > * { min-width: 0; }
+.tag { display: inline-block; font-size: .72rem; font-weight: 600; letter-spacing: .04em; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.tag.c { color: var(--copper); border-color: var(--copper); }
+
+/* ---------- таблицы ---------- */
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 600px; font-size: .92rem; }
+th, td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid var(--line); }
+th { font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--code-bg); }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+td code { white-space: nowrap; }
+
+/* ---------- OLED ---------- */
+.screens { display: flex; flex-wrap: wrap; gap: 14px; }
+figure.oled-fig { margin: 0; display: grid; gap: 6px; }
+figure.oled-fig figcaption { font-size: .8rem; color: var(--muted); }
+.oled-frame { background: var(--oled-frame); padding: 8px; border-radius: 6px; width: max-content; max-width: 100%; }
+.oled {
+  --px: 2px;
+  position: relative; width: calc(128 * var(--px)); height: calc(64 * var(--px));
+  background: var(--oled-bg); color: var(--oled-fg); overflow: hidden;
+  font-family: var(--f-pixel); font-size: calc(8 * var(--px)); line-height: 1;
+}
+.oled.inv { background: var(--oled-fg); color: var(--oled-bg); }
+.oled span { position: absolute; left: 0; white-space: pre; }
+.oled .bar { position: absolute; left: 0; width: calc(122 * var(--px)); height: calc(10 * var(--px)); box-shadow: inset 0 0 0 var(--px) currentColor; }
+.oled .bar i { display: block; height: 100%; background: currentColor; }
+.oled .lamp { position: absolute; left: calc(104 * var(--px)); top: calc(30 * var(--px)); width: calc(19 * var(--px)); height: calc(19 * var(--px)); border-radius: 50%; box-shadow: inset 0 0 0 var(--px) currentColor; }
+.oled .lamp.on { background: currentColor; }
+.console { font-family: var(--f-mono); font-size: .84rem; background: var(--code-bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; white-space: pre; overflow-x: auto; }
+
+/* ---------- код ---------- */
+details.code { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); min-width: 0; }
+details.code > summary { cursor: pointer; padding: 10px 14px; font-weight: 600; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+details.code > summary small { font-weight: 400; color: var(--muted); }
+.codebox { position: relative; border-top: 1px solid var(--line); }
+pre.py, pre.snip { margin: 0; padding: 14px 16px; overflow-x: auto; background: var(--code-bg); font: .8rem/1.55 var(--f-mono); tab-size: 4; }
+pre.snip { border: 1px solid var(--line); border-radius: var(--radius); }
+.copy { position: absolute; top: 8px; right: 8px; font: 600 .75rem var(--f-body); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.hl-k { color: var(--kw); font-weight: 600; }
+.hl-s { color: var(--str); }
+.hl-c { color: var(--com); font-style: italic; }
+.hl-n { color: var(--num); }
+
+/* ---------- чек-листы и модули ---------- */
+.modnav { display: flex; flex-wrap: wrap; gap: 6px; }
+.modnav a { text-decoration: none; font-family: var(--f-mono); font-weight: 600; font-size: .9rem; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--line); color: var(--ink); background: var(--surface); }
+.modnav a[aria-current="true"] { border-color: var(--copper); color: var(--copper); background: var(--copper-soft); }
+.modnav .sep { align-self: center; color: var(--muted); font-size: .8rem; padding: 0 4px; }
+.mod { display: grid; gap: 18px; }
+.mod[hidden] { display: none !important; }
+.check li { list-style: none; position: relative; padding-left: 4px; }
+.check { padding-left: 1.2em; }
+.check li::before { content: ""; position: absolute; left: -1.1em; top: .55em; width: .6em; height: .6em; border: 2px solid var(--copper); border-radius: 2px; }
+.trap { border-left: 3px solid var(--bad); padding: 10px 14px; background: var(--surface); border-radius: 0 var(--radius) var(--radius) 0; display: grid; gap: 4px; }
+.trap b { color: var(--bad); }
+.amb { display: grid; gap: 4px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.amb .q { font-weight: 600; }
+.amb .a { color: var(--muted); }
+
+/* ---------- план ---------- */
+.day { display: grid; gap: 8px; }
+.day h3 { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.day h3 small { font-weight: 400; color: var(--muted); font-size: .85rem; }
+.todo { list-style: none; padding: 0; display: grid; gap: 6px; }
+.todo label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.todo input { margin-top: .35em; accent-color: var(--copper); width: 1.05em; height: 1.05em; flex: none; }
+.todo input:checked + span { color: var(--muted); text-decoration: line-through; }
+.who { font-size: .7rem; font-weight: 700; letter-spacing: .06em; padding: 0 6px; border-radius: 4px; margin-right: 6px; border: 1px solid currentColor; }
+.who.e { color: var(--copper); }
+.who.s { color: var(--ok); }
+.progress { height: 6px; background: var(--line); border-radius: 999px; overflow: hidden; }
+.progress i { display: block; height: 100%; width: 0; background: var(--copper); transition: width .3s; }
+
+/* ---------- карточки ---------- */
+.cardbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.chip { font: 500 .85rem var(--f-body); padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.chip[aria-pressed="true"] { border-color: var(--copper); color: var(--copper); background: var(--copper-soft); }
+.flash { min-height: 230px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 22px; display: grid; gap: 14px; align-content: start; cursor: pointer; }
+.flash .cat { font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--copper); font-weight: 600; }
+.flash .q { font-family: var(--f-display); font-weight: 500; font-size: 1.15rem; line-height: 1.4; }
+.flash .a { border-top: 1px dashed var(--line); padding-top: 12px; }
+.flash .hint { color: var(--muted); font-size: .85rem; }
+.btnrow { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { font: 600 .92rem var(--f-body); padding: 9px 16px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.btn.good { border-color: var(--ok); color: var(--ok); }
+.btn.bad { border-color: var(--bad); color: var(--bad); }
+.stats { font-variant-numeric: tabular-nums; color: var(--muted); font-size: .9rem; }
+
+pre.mermaid { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; overflow-x: auto; text-align: center; }
+
+@media (max-width: 520px) {
+  body { font-size: 15px; }
+  .oled { --px: 1.75px; }
+  .panel { padding: 14px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

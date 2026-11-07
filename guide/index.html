@@ -1,0 +1,3357 @@
+<title>Конспект эксперта IoT</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Press+Start+2P&family=Unbounded:wght@500;700&display=swap">
+<style>
+/* Layout: липкая панель вкладок сверху, одна колонка чтения ~860px; таблицы и код скроллятся внутри себя.
+   Медная «дорожка печатной платы» как акцент, OLED-экраны пиксельным шрифтом как в заданиях. */
+:root {
+  --bg: #f3f5f7;
+  --surface: #ffffff;
+  --ink: #17202b;
+  --muted: #5b6676;
+  --line: #d8dee6;
+  --copper: #a3521b;
+  --copper-soft: #f7e9de;
+  --info-soft: #e7f0f8;
+  --ok: #24724a;
+  --warn: #9a6408;
+  --bad: #b42318;
+  --oled-bg: #070c14;
+  --oled-fg: #8fd8ff;
+  --oled-frame: #23262c;
+  --code-bg: #f6f7f9;
+  --kw: #7a3fb0;
+  --str: #1f6f43;
+  --com: #8a8f98;
+  --num: #a3521b;
+  --f-display: "Unbounded", "Golos Text", system-ui, sans-serif;
+  --f-body: "Golos Text", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --f-pixel: "Press Start 2P", "Courier New", monospace;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f141a; --surface: #161d26; --ink: #e5eaf0; --muted: #9ca8b6; --line: #2a3542;
+    --copper: #e39a63; --copper-soft: #2c2018; --info-soft: #172433;
+    --ok: #63c48f; --warn: #e3b55a; --bad: #f2867a;
+    --oled-frame: #2c3038; --code-bg: #111821;
+    --kw: #c79bf2; --str: #7fd19f; --com: #7d8794; --num: #e39a63;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f141a; --surface: #161d26; --ink: #e5eaf0; --muted: #9ca8b6; --line: #2a3542;
+  --copper: #e39a63; --copper-soft: #2c2018; --info-soft: #172433;
+  --ok: #63c48f; --warn: #e3b55a; --bad: #f2867a;
+  --oled-frame: #2c3038; --code-bg: #111821;
+  --kw: #c79bf2; --str: #7fd19f; --com: #7d8794; --num: #e39a63;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 16px/1.6 var(--f-body);
+  -webkit-text-size-adjust: 100%;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--surface);
+}
+a { color: var(--copper); }
+code, kbd { font-family: var(--f-mono); font-size: .88em; }
+:not(pre) > code { background: var(--code-bg); border: 1px solid var(--line); border-radius: 5px; padding: 0 .3em; overflow-wrap: anywhere; }
+kbd { border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 .35em; background: var(--surface); }
+:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+
+.wrap {
+  max-width: 900px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* ---------- шапка и вкладки ---------- */
+header.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--surface); border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; padding-block: 10px 4px; }
+.brand b { font-family: var(--f-display); font-weight: 700; font-size: 1.05rem; letter-spacing: .01em; }
+.brand span { color: var(--muted); font-size: .85rem; }
+nav.tabs { display: flex; gap: 4px; overflow-x: auto; padding-block: 4px 8px; scrollbar-width: none; }
+nav.tabs::-webkit-scrollbar { display: none; }
+nav.tabs a {
+  flex: none; text-decoration: none; color: var(--muted); font-weight: 500; font-size: .92rem;
+  padding: 6px 12px; border-radius: 999px; border: 1px solid transparent;
+}
+nav.tabs a:hover { color: var(--ink); border-color: var(--line); }
+nav.tabs a[aria-current="page"] { color: var(--copper); background: var(--copper-soft); border-color: var(--copper); }
+
+main { padding-block: 24px 64px; }
+section.view { display: grid; gap: 22px; }
+h1, h2, h3 { text-wrap: balance; line-height: 1.25; margin: 0; }
+h1 { font-family: var(--f-display); font-weight: 700; font-size: clamp(1.6rem, 4.5vw, 2.3rem); letter-spacing: -.01em; }
+h2 { font-family: var(--f-display); font-weight: 500; font-size: 1.35rem; margin-top: 14px; }
+h3 { font-size: 1.08rem; font-weight: 700; margin-top: 6px; }
+p, ul, ol { margin: 0; }
+ul, ol { padding-left: 1.3em; display: grid; gap: 4px; }
+.lead { font-size: 1.08rem; color: var(--muted); max-width: 68ch; }
+.eyebrow { font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; color: var(--copper); font-weight: 600; }
+.prose { display: grid; gap: 10px; max-width: 72ch; }
+.muted { color: var(--muted); }
+
+/* ---------- блоки ---------- */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; display: grid; gap: 10px; min-width: 0; }
+.note { border-left: 3px solid var(--copper); background: var(--copper-soft); padding: 12px 14px; border-radius: 0 var(--radius) var(--radius) 0; display: grid; gap: 6px; }
+.note.info { border-left-color: var(--muted); background: var(--info-soft); }
+.note b:first-child { font-weight: 700; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.grid2 > * { min-width: 0; }
+.tag { display: inline-block; font-size: .72rem; font-weight: 600; letter-spacing: .04em; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.tag.c { color: var(--copper); border-color: var(--copper); }
+
+/* ---------- таблицы ---------- */
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 600px; font-size: .92rem; }
+th, td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid var(--line); }
+th { font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--code-bg); }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+td code { white-space: nowrap; }
+
+/* ---------- OLED ---------- */
+.screens { display: flex; flex-wrap: wrap; gap: 14px; }
+figure.oled-fig { margin: 0; display: grid; gap: 6px; }
+figure.oled-fig figcaption { font-size: .8rem; color: var(--muted); }
+.oled-frame { background: var(--oled-frame); padding: 8px; border-radius: 6px; width: max-content; max-width: 100%; }
+.oled {
+  --px: 2px;
+  position: relative; width: calc(128 * var(--px)); height: calc(64 * var(--px));
+  background: var(--oled-bg); color: var(--oled-fg); overflow: hidden;
+  font-family: var(--f-pixel); font-size: calc(8 * var(--px)); line-height: 1;
+}
+.oled.inv { background: var(--oled-fg); color: var(--oled-bg); }
+.oled span { position: absolute; left: 0; white-space: pre; }
+.oled .bar { position: absolute; left: 0; width: calc(122 * var(--px)); height: calc(10 * var(--px)); box-shadow: inset 0 0 0 var(--px) currentColor; }
+.oled .bar i { display: block; height: 100%; background: currentColor; }
+.oled .lamp { position: absolute; left: calc(104 * var(--px)); top: calc(30 * var(--px)); width: calc(19 * var(--px)); height: calc(19 * var(--px)); border-radius: 50%; box-shadow: inset 0 0 0 var(--px) currentColor; }
+.oled .lamp.on { background: currentColor; }
+.console { font-family: var(--f-mono); font-size: .84rem; background: var(--code-bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; white-space: pre; overflow-x: auto; }
+
+/* ---------- код ---------- */
+details.code { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); min-width: 0; }
+details.code > summary { cursor: pointer; padding: 10px 14px; font-weight: 600; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+details.code > summary small { font-weight: 400; color: var(--muted); }
+.codebox { position: relative; border-top: 1px solid var(--line); }
+pre.py, pre.snip { margin: 0; padding: 14px 16px; overflow-x: auto; background: var(--code-bg); font: .8rem/1.55 var(--f-mono); tab-size: 4; }
+pre.snip { border: 1px solid var(--line); border-radius: var(--radius); }
+.copy { position: absolute; top: 8px; right: 8px; font: 600 .75rem var(--f-body); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.hl-k { color: var(--kw); font-weight: 600; }
+.hl-s { color: var(--str); }
+.hl-c { color: var(--com); font-style: italic; }
+.hl-n { color: var(--num); }
+
+/* ---------- чек-листы и модули ---------- */
+.modnav { display: flex; flex-wrap: wrap; gap: 6px; }
+.modnav a { text-decoration: none; font-family: var(--f-mono); font-weight: 600; font-size: .9rem; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--line); color: var(--ink); background: var(--surface); }
+.modnav a[aria-current="true"] { border-color: var(--copper); color: var(--copper); background: var(--copper-soft); }
+.modnav .sep { align-self: center; color: var(--muted); font-size: .8rem; padding: 0 4px; }
+.mod { display: grid; gap: 18px; }
+.mod[hidden] { display: none !important; }
+.check li { list-style: none; position: relative; padding-left: 4px; }
+.check { padding-left: 1.2em; }
+.check li::before { content: ""; position: absolute; left: -1.1em; top: .55em; width: .6em; height: .6em; border: 2px solid var(--copper); border-radius: 2px; }
+.trap { border-left: 3px solid var(--bad); padding: 10px 14px; background: var(--surface); border-radius: 0 var(--radius) var(--radius) 0; display: grid; gap: 4px; }
+.trap b { color: var(--bad); }
+.amb { display: grid; gap: 4px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.amb .q { font-weight: 600; }
+.amb .a { color: var(--muted); }
+
+/* ---------- план ---------- */
+.day { display: grid; gap: 8px; }
+.day h3 { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.day h3 small { font-weight: 400; color: var(--muted); font-size: .85rem; }
+.todo { list-style: none; padding: 0; display: grid; gap: 6px; }
+.todo label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.todo input { margin-top: .35em; accent-color: var(--copper); width: 1.05em; height: 1.05em; flex: none; }
+.todo input:checked + span { color: var(--muted); text-decoration: line-through; }
+.who { font-size: .7rem; font-weight: 700; letter-spacing: .06em; padding: 0 6px; border-radius: 4px; margin-right: 6px; border: 1px solid currentColor; }
+.who.e { color: var(--copper); }
+.who.s { color: var(--ok); }
+.progress { height: 6px; background: var(--line); border-radius: 999px; overflow: hidden; }
+.progress i { display: block; height: 100%; width: 0; background: var(--copper); transition: width .3s; }
+
+/* ---------- карточки ---------- */
+.cardbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.chip { font: 500 .85rem var(--f-body); padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.chip[aria-pressed="true"] { border-color: var(--copper); color: var(--copper); background: var(--copper-soft); }
+.flash { min-height: 230px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 22px; display: grid; gap: 14px; align-content: start; cursor: pointer; }
+.flash .cat { font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--copper); font-weight: 600; }
+.flash .q { font-family: var(--f-display); font-weight: 500; font-size: 1.15rem; line-height: 1.4; }
+.flash .a { border-top: 1px dashed var(--line); padding-top: 12px; }
+.flash .hint { color: var(--muted); font-size: .85rem; }
+.btnrow { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { font: 600 .92rem var(--f-body); padding: 9px 16px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.btn.good { border-color: var(--ok); color: var(--ok); }
+.btn.bad { border-color: var(--bad); color: var(--bad); }
+.stats { font-variant-numeric: tabular-nums; color: var(--muted); font-size: .9rem; }
+
+pre.mermaid { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; overflow-x: auto; text-align: center; }
+
+@media (max-width: 520px) {
+  body { font-size: 15px; }
+  .oled { --px: 1.75px; }
+  .panel { padding: 14px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><b>Конспект эксперта IoT</b><span>WorldSkills Kazakhstan 2026 · ZL-02B · ESP32 · MicroPython</span></div>
+    <nav class="tabs" aria-label="Разделы">
+      <a href="#overview" data-view="overview">Обзор</a>
+      <a href="#hardware" data-view="hardware">Железо</a>
+      <a href="#a1" data-view="modules">Модули</a>
+      <a href="#micropython" data-view="micropython">MicroPython</a>
+      <a href="#defense" data-view="defense">Защита студента</a>
+      <a href="#plan" data-view="plan">План на 7 дней</a>
+      <a href="#cards" data-view="cards">Карточки</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ===================================================== ОБЗОР -->
+<section class="view" id="v-overview">
+  <div class="prose">
+    <p class="eyebrow">Обзор всех 8 документов</p>
+    <h1>Что именно будут делать студенты</h1>
+    <p class="lead">Во всех заданиях одна и та же история: агрокомплекс «Жасыл Дала» автоматизирует теплицу. Студент пишет прошивку на MicroPython для учебного набора ZL-02B (плата ESP32 + модули датчиков + OLED-экран). В «большом» наборе устройство ещё и спрашивает языковую модель через интернет и сдаёт код в GitHub.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <span class="tag c">IIoT · 5 файлов</span>
+      <h3>«Инженерия интеллектуальных IoT-систем»</h3>
+      <p>5 модулей по 3 часа, 3 дня: A1 и A2 в день 1, B1 и B2 в день 2, C1 в день 3. В каждом: датчики + OLED + запросы к ИИ-сервису (LLM по API) + сдача в GitHub.</p>
+    </div>
+    <div class="panel">
+      <span class="tag">AI-IoT · 3 файла</span>
+      <h3>«Искусственный интеллект и интернет вещей»</h3>
+      <p>Модуль делится на 3 части по 1 часу, каждая продолжает предыдущую, проверка после каждой части. Без интернета и GitHub. MA — парктроник, MB — RFID. MA1 — вариант, где весь парктроник за 1 час, а части A2 и A3 объявляют перед стартом.</p>
+    </div>
+  </div>
+
+  <h2>Карта модулей IIoT</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Модуль</th><th>День</th><th>Датчики и пины</th><th>Что спрашивают у ИИ</th><th>Главная сложность</th></tr></thead>
+    <tbody>
+      <tr><td><a href="#a1"><b>A1</b></a> Дальномер</td><td>Д1</td><td>HC-SR04: TRIG 14, ECHO 12</td><td>10 расстояний → <code>APPROACH</code> / <code>AWAY</code> / <code>STILL</code></td><td>медиана, таймер 200 мс, шкала, инверсия экрана</td></tr>
+      <tr><td><a href="#a2"><b>A2</b></a> Лампа</td><td>Д1</td><td>PIR: 27, свет: АЦП 34</td><td>статистика минуты → HOLD 5…30 с</td><td>калибровка, гистерезис, отсчёт удержания</td></tr>
+      <tr><td><a href="#b1"><b>B1</b></a> Газ</td><td>Д2</td><td>MQ-2: АЦП 34, WS2812: 25</td><td>60 фоновых значений → порог тревоги</td><td>этапы (прогрев → фон → работа), мигание</td></tr>
+      <tr><td><a href="#b2"><b>B2</b></a> RFID</td><td>Д2</td><td>MFRC522 по SPI: 16, 13, 15, 32, 2</td><td>10 записей журнала → <code>LOW</code> / <code>MEDIUM</code> / <code>HIGH</code></td><td>память карты MIFARE, запись блоков 8 и 9</td></tr>
+      <tr><td><a href="#c1"><b>C1</b></a> ИИ-камера</td><td>Д3</td><td>UART: ESP32 16/17 ↔ A01-AI IO6/IO7</td><td>класс объекта → <code>HUMAN</code> / <code>ANIMAL</code> / <code>TRANSPORT</code> / <code>HOME</code></td><td>две программы на двух устройствах, свой протокол</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted">Во всех модулях OLED SSD1306 подключён к разъёму «23 19»: SDA → 23, SCL → 19, адрес 0x3C.</p>
+
+  <h2>Скелет, одинаковый для всех модулей IIoT</h2>
+  <p class="prose">Если студент держит в голове этот скелет, любой модуль — это «скелет + 2–3 своих функции». Ниже то, что повторяется в каждом документе слово в слово.</p>
+  <div class="grid2">
+    <div class="panel">
+      <h3>1. Старт и сеть</h3>
+      <ul>
+        <li>Экран запуска 2 с: <code>IoT STATION XX</code> (y=0), <code>WiFi: OK</code>/<code>WiFi: FAIL</code> (y=24), <code>AI: READY</code>/<code>AI: OFFLINE</code> (y=40). XX — номер места.</li>
+        <li>При старте подключиться к Wi-Fi и сделать проверочный запрос к ИИ.</li>
+        <li>Потеряли сеть — переподключаться самим; датчики работают и без сети.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>2. Код и экран</h3>
+      <ul>
+        <li>Пины, пороги, тайминги — именованные константы в начале файла.</li>
+        <li>OLED: только латиница, ≤16 символов, строки y = 0, 16, 32, 48 (в A1 — 0, 14, 28, 42).</li>
+        <li>Тексты и форматы — символ в символ как в задании.</li>
+        <li><code>main.py</code> на плате, автозапуск. Драйверы не менять.</li>
+        <li>Программа не падает ни при каких условиях.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>3. ИИ-сервис</h3>
+      <ul>
+        <li><code>secrets.py</code> на плате: <code>WIFI_SSID, WIFI_PASS, API_URL, API_KEY, MODEL</code>.</li>
+        <li>Промпт — константа в программе, содержит данные и формат ответа.</li>
+        <li>Ответ — свободный текст: извлечь значение, проверить; плохое не применять.</li>
+        <li>Ожидание ≤10 с; ошибка → резервный режим; повтор не раньше 10 с; не чаще 1 запроса в 5 с.</li>
+        <li>Журнал: <code>мс,AI_REQ</code> · <code>мс,AI_ANS,значение</code> · <code>мс,AI_ERR,причина</code> · <code>мс,AI_BAD</code>.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>4. GitHub</h3>
+      <ul>
+        <li>Репозиторий <code>WSKZ2026_IIoT_XX</code>, папка модуля: <code>A1/main.py</code>, <code>A1/secrets_example.py</code>.</li>
+        <li>Коммит минимум раз в 30 минут, понятное сообщение: <code>A1: wifi connect</code>.</li>
+        <li>Финал: коммит <code>A1 final</code> + push до конца времени.</li>
+        <li>Нельзя: force-push, удалять историю, трогать папки сданных модулей, класть <code>secrets.py</code> и драйверы.</li>
+        <li>Код в репозитории = код на плате.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>Изменение задания на 30 %</b>
+    <p>Регламент требует, чтобы эксперты изменили задание минимум на 30 % до чемпионата. Значит, на площадке будут другие пороги, тексты, пины или даже логика. Готовить студента нужно к принципам (таймер, фильтр, гистерезис, протокол, запрос к ИИ), а не к заучиванию этих решений. Плюс: принесённый заранее код запрещён правилами — студент пишет всё сам, на месте.</p>
+  </div>
+
+  <h2>Как работает связка «датчик → ESP32 → ИИ»</h2>
+  <pre class="mermaid">
+flowchart LR
+  S[Датчики] -->|измерения| E[ESP32: логика, OLED, журнал]
+  E -->|HTTPS POST: промпт + данные| A[ИИ-сервис: LLM API]
+  A -->|JSON: choices 0 message content| E
+  E -->|"ответ = свободный текст → извлечь → проверить → применить или отбросить"| E
+  </pre>
+  <div class="note info">
+    <b>Где здесь «искусственный интеллект»</b>
+    <p>В IIoT-модулях ИИ — это большая языковая модель (как ChatGPT) по OpenAI-совместимому API. ESP32 сама ничего не «думает»: она отправляет числа текстом и разбирает текстовый ответ. В C1 есть второй, настоящий нейросетевой ИИ: модель YOLO на AI-модуле A01-AI распознаёт объекты на камере.</p>
+  </div>
+</section>
+
+<!-- ===================================================== ЖЕЛЕЗО -->
+<section class="view" id="v-hardware" hidden>
+  <div class="prose">
+    <p class="eyebrow">Набор ZL-02B AI+IoT Application Module</p>
+    <h1>Платы, датчики и интерфейсы</h1>
+    <p class="lead">Набор производит Wenzhou Zhilong Intelligent Technology (Китай): плата ESP32 и AI-модуль ставятся на общую плату расширения (IO Shield), датчики подключаются кабелями к промаркированным разъёмам.</p>
+  </div>
+
+  <h2>ESP32-WROOM-32 — мозг устройства</h2>
+  <div class="grid2">
+    <div class="panel">
+      <ul>
+        <li>2 ядра Xtensa LX6, до 240 МГц; 520 КБ ОЗУ; обычно 4 МБ флеш.</li>
+        <li>Wi-Fi 2,4 ГГц (b/g/n) + Bluetooth 4.2/BLE.</li>
+        <li><b>Логика 3,3 В.</b> 5 В на вход GPIO подавать нельзя.</li>
+        <li>АЦП 12 бит: значения 0…4095. Два блока: ADC1 (GPIO 32–39) и ADC2.</li>
+        <li>4 аппаратных таймера, 3 UART, 2 I2C, 2 свободных SPI, ШИМ на любом выходе.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Что эксперт должен знать про пины</h3>
+      <ul>
+        <li><b>ADC2 не работает при включённом Wi-Fi.</b> Поэтому аналоговые датчики висят на GPIO34 (это ADC1).</li>
+        <li>GPIO 34–39 — только вход, без подтяжек.</li>
+        <li>GPIO 6–11 заняты флеш-памятью — не трогать.</li>
+        <li>«Strapping»-пины 0, 2, 5, 12, 15 читаются при загрузке. GPIO12 (ECHO в A1) в HIGH при старте → плата может не загрузиться. GPIO2 (MISO в B2) — тоже strapping.</li>
+        <li>UART0 = USB и консоль Thonny. Для A01-AI используют UART2 (16/17).</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Все пины из заданий</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Разъём IO Shield</th><th>Модуль</th><th>Вывод → GPIO</th><th>Где</th><th>Интерфейс</th></tr></thead>
+    <tbody>
+      <tr><td><code>GND VCC 23 19</code></td><td>OLED SSD1306</td><td>SDA 23, SCL 19</td><td>все</td><td>I2C, адрес 0x3C</td></tr>
+      <tr><td><code>GND VCC 12 14</code></td><td>HC-SR04</td><td>ECHO 12, TRIG 14</td><td>A1, MA</td><td>цифровые импульсы</td></tr>
+      <tr><td><code>GND VCC 27 26</code></td><td>PIR-датчик</td><td>OUT 27</td><td>A2</td><td>цифровой вход</td></tr>
+      <tr><td><code>GND VCC 35 34</code></td><td>Свет / MQ-2</td><td>ADC 34</td><td>A2, B1</td><td>АЦП (ADC1)</td></tr>
+      <tr><td><code>GND VCC 25 33</code></td><td>WS2812 (4 LED)</td><td>DI 25</td><td>B1 (в MA пин объявит эксперт)</td><td>однопроводной протокол 800 кГц</td></tr>
+      <tr><td><code>GND VCC 16 17</code></td><td>MFRC522</td><td>RST 16</td><td>B2, MB</td><td rowspan="3">SPI</td></tr>
+      <tr><td><code>GND VCC 13 15</code></td><td>MFRC522</td><td>NSS 13, SCK 15</td><td>B2, MB</td></tr>
+      <tr><td><code>GND VCC 32 2</code></td><td>MFRC522</td><td>MOSI 32, MISO 2</td><td>B2, MB</td></tr>
+      <tr><td><code>GND VCC 16 17</code> ↔ <code>7 6 5V GND</code></td><td>A01-AI</td><td>ESP32 RX 16 ← IO6 TX; ESP32 TX 17 → IO7 RX</td><td>C1</td><td>UART 115200 8N1</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted">Разъём «GND VCC a b» — это 4-проводной кабель: питание и две линии GPIO. Модуль может использовать одну из них (например, датчик освещённости только 34).</p>
+
+  <h2>Датчики и модули</h2>
+  <div class="grid2">
+    <div class="panel">
+      <span class="tag c">A1 · MA</span>
+      <h3>HC-SR04 — ультразвуковой дальномер</h3>
+      <ul>
+        <li>На TRIG подаём импульс ≥10 мкс → датчик излучает 8 импульсов 40 кГц.</li>
+        <li>ECHO держит HIGH столько, сколько звук летел туда и обратно.</li>
+        <li><b>Расстояние = время × 0,0343 / 2</b> (см, время в мкс) ≈ время / 58.</li>
+        <li>Диапазон 2–400 см, конус ~15°. Мягкие и наклонные поверхности дают ошибки.</li>
+        <li>Нет эха → драйвер выдаёт тайм-аут или ошибку. Это и есть «OUT OF RANGE».</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <span class="tag c">все модули</span>
+      <h3>OLED SSD1306 128×64</h3>
+      <ul>
+        <li>I2C, адрес 0x3C. Проверка: <code>i2c.scan()</code> → <code>[60]</code> (60 = 0x3C).</li>
+        <li>Шрифт 8×8 → <b>16 символов × 8 строк</b>. Кириллицы нет.</li>
+        <li>Рисуем в буфер (<code>fill</code>, <code>text</code>, <code>rect</code>, <code>fill_rect</code>, <code>pixel</code>, <code>line</code>, <code>ellipse</code>), потом <code>show()</code> отправляет кадр.</li>
+        <li><code>invert(1)</code> — аппаратная инверсия всего экрана (A1, B2).</li>
+        <li>Без <code>fill(0)</code> старый текст остаётся — частая потеря баллов.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <span class="tag c">A2</span>
+      <h3>PIR — датчик движения</h3>
+      <ul>
+        <li>Пироэлектрический: видит изменение теплового (ИК) излучения человека.</li>
+        <li>Выход цифровой: 1 = движение. Сам держит 1 несколько секунд (потенциометр времени).</li>
+        <li>После включения ~30–60 с «прогревается» и может давать ложные срабатывания.</li>
+        <li>«Срабатывание» = фронт 0 → 1, а не каждый опрос со значением 1.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <span class="tag c">A2</span>
+      <h3>Датчик освещённости</h3>
+      <ul>
+        <li>Фоторезистор в делителе напряжения → аналоговый сигнал на АЦП.</li>
+        <li>Темнеет — значение растёт или падает: зависит от схемы делителя. Поэтому задание говорит «определите на стенде». Закройте датчик ладонью и посмотрите в консоли.</li>
+        <li>АЦП ESP32 шумный и нелинейный → усреднять (в A2 по 4 замерам).</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <span class="tag c">B1</span>
+      <h3>MQ-2 — газоанализатор</h3>
+      <ul>
+        <li>Полупроводник SnO₂ с нагревателем (5 В, ~150 мА). Чувствует пропан, метан, водород, дым, спирт.</li>
+        <li>Есть газ → сопротивление падает → напряжение и значение АЦП <b>растут</b>.</li>
+        <li>Нужен прогрев: холодный датчик «плывёт». В задании 30 с — учебное упрощение.</li>
+        <li>Проверка — выдохом на датчик (влажность и тепло слегка поднимают сигнал). Открытый огонь и баллончики запрещены.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <span class="tag c">B1 · MA</span>
+      <h3>WS2812 — адресные RGB-светодиоды</h3>
+      <ul>
+        <li>В каждом светодиоде свой контроллер; цепочка управляется <b>одним проводом</b> (DI).</li>
+        <li>24 бита на диод (порядок G-R-B, модуль <code>neopixel</code> переставляет сам).</li>
+        <li><code>np[i] = (r, g, b)</code> только меняет буфер. Без <code>np.write()</code> ничего не загорится.</li>
+        <li>До 60 мА на диод на полной яркости — можно светить на 60 из 255.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <span class="tag c">MA</span>
+      <h3>Зуммер BEEP</h3>
+      <ul>
+        <li><b>Активный</b> (с генератором): звучит от постоянного уровня, управление <code>Pin.value()</code>.</li>
+        <li><b>Пассивный</b>: нужен ШИМ с частотой: <code>PWM(Pin(x), freq=2000, duty=512)</code>.</li>
+        <li>Многие модули включаются <b>нулём</b> (транзистор PNP). Проверка на стенде: <code>value(1)</code> и <code>value(0)</code>.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <span class="tag c">B2 · MB</span>
+      <h3>MFRC522 + карта MIFARE S50</h3>
+      <ul>
+        <li>Считыватель 13,56 МГц (ISO 14443A), подключение по SPI + вывод RST.</li>
+        <li>S50 = MIFARE Classic 1K: 16 секторов × 4 блока × 16 байт = 1024 байта.</li>
+        <li>Тип карты (ATQA) S50 = 0x0004, драйвер печатает его как <code>0x0400</code>.</li>
+        <li>Номер (UID) — 4 байта + 5-й байт BCC = XOR четырёх. Пример: 154,63,18,196 → <code>9A3F12C4</code>, BCC 115 = 0x73.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Память MIFARE S50: что можно и что нельзя</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Сектор</th><th>Блок 0</th><th>Блок 1</th><th>Блок 2</th><th>Блок 3 (трейлер)</th></tr></thead>
+    <tbody>
+      <tr><td>0</td><td class="num">0 — заводской (UID), только чтение</td><td class="num">1 — данные</td><td class="num">2 — данные</td><td class="num">3 — ключ A | биты доступа | ключ B</td></tr>
+      <tr><td>1</td><td class="num">4</td><td class="num">5</td><td class="num">6</td><td class="num">7 — трейлер</td></tr>
+      <tr><td><b>2</b></td><td class="num"><b>8 — имя (B2) / данные (MB)</b></td><td class="num"><b>9 — счётчик (B2)</b></td><td class="num">10</td><td class="num">11 — трейлер</td></tr>
+      <tr><td>…</td><td colspan="4">…до сектора 15 (блоки 60–63)</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note">
+    <b>Почему запись в блоки 3, 7, 11… запрещена</b>
+    <p>Трейлер хранит ключи и биты доступа. Записать туда 16 байт данных = испортить биты доступа, и сектор навсегда заблокирован. Карта испорчена, баллы потеряны. Ключ по умолчанию у новых карт — шесть байт <code>0xFF</code>. Авторизация действует на весь сектор: один <code>auth</code> на блок 8 открывает и блок 9.</p>
+  </div>
+  <p><b>Порядок общения с картой:</b> поиск <code>SeekCard(0x52)</code> → антиколлизия <code>Anticoll()</code> (получили UID) → выбор <code>select_tag(uid)</code> → авторизация <code>auth(0x60, блок, ключ, uid)</code> → <code>read</code>/<code>write</code> → <code>stop_crypto1()</code>. 0x52 — «разбудить все карты» (WUPA), 0x26 — только незаснувшие (REQA). 0x60 — ключ A, 0x61 — ключ B.</p>
+
+  <h2>AI-модуль A01-AI (модуль C1)</h2>
+  <div class="grid2">
+    <div class="panel">
+      <ul>
+        <li>Камера + LCD + нейросетевой ускоритель, программируется на MicroPython.</li>
+        <li>Всё указывает на чип <b>Kendryte K210</b> и прошивку MaixPy: ускоритель называется KPU, выводы назначаются через FPIOA (IO6/IO7), модель на 20 классов — классическая YOLOv2 на датасете VOC.</li>
+        <li>20 классов VOC: aeroplane, bicycle, bird, boat, bottle, bus, car, cat, chair, cow, diningtable, dog, horse, motorbike, person, pottedplant, sheep, sofa, train, tvmonitor.</li>
+      </ul>
+    </div>
+    <div class="note info">
+      <b>Проверить на С-1</b>
+      <p>Я не смог открыть сайт производителя, поэтому чип и API модуля — вывод по признакам из задания. На подготовительном дне посмотрите прошивку модуля, путь к файлу модели (.kmodel), якоря (anchors) и точный список классов от экспертов.</p>
+    </div>
+  </div>
+
+  <h2>Интерфейсы одной таблицей</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Интерфейс</th><th>Провода</th><th>Суть</th><th>MicroPython</th></tr></thead>
+    <tbody>
+      <tr><td>I2C</td><td>SDA, SCL</td><td>шина с адресами, несколько устройств на двух проводах</td><td><code>SoftI2C(scl=Pin(19), sda=Pin(23))</code></td></tr>
+      <tr><td>SPI</td><td>SCK, MOSI, MISO, CS (NSS)</td><td>быстрая, полнодуплексная, устройство выбирается линией CS</td><td>внутри драйвера <code>rc522.py</code></td></tr>
+      <tr><td>UART</td><td>TX, RX, GND</td><td>TX одного → RX другого (крест), общий GND, одинаковая скорость. 8N1 = 8 бит, без чётности, 1 стоп</td><td><code>UART(2, baudrate=115200, tx=17, rx=16)</code></td></tr>
+      <tr><td>АЦП</td><td>1 сигнальный</td><td>напряжение → число 0…4095. Ослабление 11 дБ = вход до ~3,3 В</td><td><code>ADC(Pin(34))</code>, <code>atten</code>, <code>read()</code></td></tr>
+      <tr><td>ШИМ</td><td>1</td><td>быстрое вкл/выкл: частота + скважность (зуммер, яркость)</td><td><code>PWM(Pin(x), freq=2000, duty=512)</code></td></tr>
+      <tr><td>WS2812</td><td>DI</td><td>однопроводной поток 800 кГц, 24 бита на диод</td><td><code>NeoPixel(Pin(25), 4)</code></td></tr>
+      <tr><td>HTTPS</td><td>Wi-Fi</td><td>POST-запрос с JSON к API модели, ключ в заголовке</td><td><code>requests.post(...)</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>ИИ-сервис: запрос и ответ</h2>
+  <div class="grid2">
+    <pre class="snip">POST https://&lt;адрес&gt;/v1/chat/completions
+Content-Type: application/json
+Authorization: Bearer &lt;API-ключ&gt;
+
+{"model": "&lt;модель&gt;",
+ "messages": [{"role": "user",
+               "content": "&lt;промпт с данными&gt;"}],
+ "max_tokens": 50,
+ "temperature": 0}</pre>
+    <div class="panel">
+      <ul>
+        <li>Ответ 200: текст в <code>choices[0].message.content</code>.</li>
+        <li>401 — неверный ключ, 429 — превышен лимит запросов, 5xx — сбой сервиса.</li>
+        <li><code>temperature: 0</code> — ответы максимально предсказуемые.</li>
+        <li><code>max_tokens: 50</code> — ответ короткий (токен ≈ часть слова).</li>
+        <li>Промпт лучше по-английски и с жёстким форматом: «Reply with exactly one word: LOW, MEDIUM or HIGH».</li>
+        <li>HTTPS на ESP32 съедает ~40 КБ памяти: <code>gc.collect()</code> перед запросом и всегда <code>r.close()</code>.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================== МОДУЛИ -->
+<section class="view" id="v-modules" hidden>
+  <div class="prose">
+    <p class="eyebrow">Разбор по модулям</p>
+    <h1>Требования, экраны, ловушки, эталонный код</h1>
+    <p class="lead">Чек-лист в каждом модуле — то, что эксперт проверяет на стенде. Код — учебный эталон: прошёл все сценарии в симуляторе на ПК, но на реальной плате его ещё нужно прогнать.</p>
+  </div>
+  <nav class="modnav" aria-label="Модули">
+    <a href="#a1" data-mod="a1">A1</a><a href="#a2" data-mod="a2">A2</a><a href="#b1" data-mod="b1">B1</a><a href="#b2" data-mod="b2">B2</a><a href="#c1" data-mod="c1">C1</a>
+    <span class="sep">AI-IoT:</span><a href="#ma" data-mod="ma">MA / MA1</a><a href="#mb" data-mod="mb">MB</a>
+  </nav>
+
+  <!-- ---------- A1 ---------- -->
+  <article class="mod" id="m-a1">
+    <h2>A1 · Ультразвуковой дальномер</h2>
+    <p class="prose">Парктроник у въезда в теплицу. Меряет расстояние каждые 200 мс, сглаживает медианой, показывает зону и шкалу. Раз в 10 с отправляет ИИ 10 последних значений, чтобы он сказал: тележка приближается, удаляется или стоит. Основа: опыт 4.15 «Ultrasonic Ranging».</p>
+    <div class="screens">
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="IoT STATION XX / WiFi: OK / AI: READY"><span style="top:calc(0 * var(--px))">IoT STATION XX</span><span style="top:calc(24 * var(--px))">WiFi: OK</span><span style="top:calc(40 * var(--px))">AI: READY</span></div></div><figcaption>Запуск, 2 с</figcaption></figure>
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="HCSR04 / Dist: 85.0 cm / Zone: FAR / AI: STILL"><span style="top:calc(0 * var(--px))">HCSR04</span><span style="top:calc(14 * var(--px))">Dist: 85.0 cm</span><span style="top:calc(28 * var(--px))">Zone: FAR</span><span style="top:calc(42 * var(--px))">AI: STILL</span><div class="bar" style="top:calc(54 * var(--px))"><i style="width:calc(18 * var(--px))"></i></div></div></div><figcaption>Объект далеко</figcaption></figure>
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled inv" role="img" aria-label="HCSR04 / Dist: 12.4 cm / Zone: NEAR / AI: APPROACH"><span style="top:calc(0 * var(--px))">HCSR04</span><span style="top:calc(14 * var(--px))">Dist: 12.4 cm</span><span style="top:calc(28 * var(--px))">Zone: NEAR</span><span style="top:calc(42 * var(--px))">AI: APPROACH</span><div class="bar" style="top:calc(54 * var(--px))"><i style="width:calc(106 * var(--px))"></i></div></div></div><figcaption>NEAR + APPROACH → инверсия</figcaption></figure>
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="HCSR04 / OUT OF RANGE"><span style="top:calc(0 * var(--px))">HCSR04</span><span style="top:calc(24 * var(--px))">OUT OF RANGE</span></div></div><figcaption>Вне диапазона</figcaption></figure>
+    </div>
+    <h3>Чек-лист проверки</h3>
+    <ul class="check">
+      <li>Строки этого модуля на y = <b>0, 14, 28, 42</b> (исключение из общего правила). Шкала: рамка x=0, y=54, 122×10.</li>
+      <li><code>Dist: XX.X cm</code> — один знак после запятой; экран очищается перед каждым обновлением.</li>
+      <li>Измерение по <b>таймеру</b> 200 мс (в журнале ~5 строк в секунду).</li>
+      <li>Медиана 5 последних корректных значений: быстрый взмах рукой не даёт скачка.</li>
+      <li>Некорректно: &lt;2 см, &gt;400 см, ошибка драйвера → <code>OUT OF RANGE</code> на y=24, без расстояния, зоны и шкалы; в буфер не попадает; восстановление само.</li>
+      <li>Зоны: <code>Zone: NEAR</code> &lt;20, <code>Zone: MID</code> 20…50, <code>Zone: FAR</code> &gt;50.</li>
+      <li>Шкала: 100 см и дальше — пустая, 0 см — полная, пропорционально.</li>
+      <li>ИИ: каждые 10 с, 10 отфильтрованных значений с шагом 0,5 с; пока их меньше 10 — не отправлять. <code>AI: ...</code> во время запроса, <code>AI: ---</code> при ошибке или плохом ответе.</li>
+      <li>NEAR и последняя оценка APPROACH → инверсия до смены зоны или оценки.</li>
+      <li>Журнал: <code>15230,34.5,MID</code> и <code>15630,-1,OUT</code> + строки AI_*.</li>
+    </ul>
+    <h3>Ловушки</h3>
+    <div class="trap"><b>Две разные очереди</b><p>Буфер медианы — 5 значений каждые 200 мс. Для ИИ нужна отдельная история: 10 значений с шагом 0,5 с. Студенты часто отправляют буфер медианы.</p></div>
+    <div class="trap"><b>HTTP внутри таймера</b><p>Запрос к ИИ длится до 10 с. Если делать его в обработчике таймера, всё зависнет. Таймер только ставит флаг, работа — в основном цикле.</p></div>
+    <div class="trap"><b>Инверсия «залипает»</b><p>После <code>invert(1)</code> надо явно вернуть <code>invert(0)</code>, когда условие пропало (и на экране OUT OF RANGE тоже).</p></div>
+    <div class="trap"><b>Имя метода драйвера</b><p>Задание называет только конструктор <code>HCSR04(tri, ech)</code>. Как называется метод измерения (<code>distance_cm()</code>, <code>getDistance()</code>…), видно только в файле <code>HCSR04.py</code> — открыть в Thonny или <code>dir(sensor)</code>.</p></div>
+    <details class="code"><summary>Эталонный код: A1/main.py <small>300 строк · IIoT/A1/main.py</small></summary><div class="codebox"><button class="copy" type="button">Копировать</button><pre class="py"># =====================================================================
+#  WSKZ2026 IIoT — Модуль A1. Ультразвуковой дальномер (парктроник)
+#  ESP32 + HC-SR04 + OLED SSD1306 + ИИ-сервис (Chat Completions API)
+#  Эталонное учебное решение. Перед использованием сверить имена
+#  методов с файлами драйверов на площадке (см. пометки &quot;СВЕРИТЬ&quot;).
+# =====================================================================
+import time
+import json
+import gc
+import network
+from machine import Pin, SoftI2C, Timer
+import ssd1306
+from HCSR04 import HCSR04
+
+try:                      # в новых прошивках модуль называется requests
+    import requests
+except ImportError:       # в старых — urequests
+    import urequests as requests
+
+try:                      # secrets.py лежит только на плате, не в Git
+    import secrets
+except ImportError:
+    secrets = None
+
+# ---------------- Константы (пины, пороги, тайминги) ----------------
+STATION = &quot;XX&quot;            # номер рабочего места
+PIN_SDA = 23
+PIN_SCL = 19
+PIN_TRIG = 14
+PIN_ECHO = 12
+
+MEASURE_MS = 200          # период таймера измерения
+DIST_MIN = 2              # см, меньше — некорректно
+DIST_MAX = 400            # см, больше — некорректно
+ZONE_NEAR = 20            # &lt; 20 см  -&gt; NEAR
+ZONE_FAR = 50             # &gt; 50 см  -&gt; FAR, иначе MID
+FILTER_N = 5              # размер буфера медианы
+
+LINE_Y = (0, 14, 28, 42)  # в A1 строки идут через 14 px
+BAR_X = 0
+BAR_Y = 54
+BAR_W = 122
+BAR_H = 10
+BAR_RANGE = 100           # см: &gt;= 100 -&gt; шкала пустая
+
+HIST_N = 10               # сколько значений отправляем ИИ
+HIST_MS = 500             # интервал между этими значениями
+AI_PERIOD_MS = 10000      # запрос раз в 10 с
+AI_RETRY_MS = 10000       # после ошибки — не раньше чем через 10 с
+AI_TIMEOUT_S = 10
+WIFI_RETRY_MS = 10000
+START_SCREEN_MS = 2000
+
+AI_WORDS = (&quot;APPROACH&quot;, &quot;AWAY&quot;, &quot;STILL&quot;)
+PROMPT = (&quot;Parking sensor. Distances to an object in cm, measured every &quot;
+          &quot;0.5 s, oldest first: {}. Is the object approaching, moving away &quot;
+          &quot;or standing still? Reply with exactly one word: &quot;
+          &quot;APPROACH, AWAY or STILL.&quot;)
+
+# ---------------- Оборудование ----------------
+i2c = SoftI2C(scl=Pin(PIN_SCL), sda=Pin(PIN_SDA))
+oled = ssd1306.SSD1306_I2C(128, 64, i2c)          # адрес 0x3C по умолчанию
+sensor = HCSR04(PIN_TRIG, PIN_ECHO)               # конструктор HCSR04(tri, ech)
+wlan = network.WLAN(network.STA_IF)
+
+# ---------------- Состояние программы ----------------
+buf = []                  # 5 последних корректных измерений
+history = []              # 10 медиан с шагом 0.5 с (для ИИ)
+dist = None               # отфильтрованное расстояние или None (OUT)
+zone = &quot;&quot;
+ai_text = &quot;---&quot;           # что показываем в строке AI
+ai_last = None            # последняя допустимая оценка
+tick = False              # флаг от таймера
+next_ai = 0
+next_hist = 0
+next_wifi = 0
+
+
+def log(*parts):
+    &quot;&quot;&quot;Строка журнала: время_мс,поле,поле...&quot;&quot;&quot;
+    print(&quot;,&quot;.join([str(time.ticks_ms())] + [str(p) for p in parts]))
+
+
+# ---------------- Wi-Fi ----------------
+def wifi_connect(timeout_ms=10000):
+    &quot;&quot;&quot;Подключение при старте. Возвращает True/False, не падает.&quot;&quot;&quot;
+    if secrets is None:
+        return False
+    try:
+        wlan.active(True)
+        if not wlan.isconnected():
+            wlan.connect(secrets.WIFI_SSID, secrets.WIFI_PASS)
+            t0 = time.ticks_ms()
+            while (not wlan.isconnected()
+                   and time.ticks_diff(time.ticks_ms(), t0) &lt; timeout_ms):
+                time.sleep_ms(200)
+        return wlan.isconnected()
+    except Exception as e:
+        print(&quot;WiFi error:&quot;, e)
+        return False
+
+
+def wifi_keepalive(now):
+    &quot;&quot;&quot;Автопереподключение: раз в 10 с, без ожидания (не тормозит цикл).&quot;&quot;&quot;
+    global next_wifi
+    if secrets is None or wlan.isconnected():
+        return
+    if time.ticks_diff(now, next_wifi) &gt;= 0:
+        next_wifi = time.ticks_add(now, WIFI_RETRY_MS)
+        try:
+            wlan.disconnect()
+            wlan.connect(secrets.WIFI_SSID, secrets.WIFI_PASS)
+        except Exception as e:
+            print(&quot;WiFi retry:&quot;, e)
+
+
+# ---------------- ИИ-сервис ----------------
+class AIError(Exception):
+    pass
+
+
+def ai_request(prompt):
+    &quot;&quot;&quot;POST в Chat Completions. Возвращает текст ответа или бросает исключение.&quot;&quot;&quot;
+    if secrets is None or not wlan.isconnected():
+        raise AIError(&quot;NO_WIFI&quot;)
+    gc.collect()                                   # TLS требует много памяти
+    body = {&quot;model&quot;: secrets.MODEL,
+            &quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt}],
+            &quot;max_tokens&quot;: 50, &quot;temperature&quot;: 0}
+    headers = {&quot;Content-Type&quot;: &quot;application/json&quot;,
+               &quot;Authorization&quot;: &quot;Bearer &quot; + secrets.API_KEY}
+    r = requests.post(secrets.API_URL, data=json.dumps(body).encode(),
+                      headers=headers, timeout=AI_TIMEOUT_S)
+    try:
+        if r.status_code != 200:
+            raise AIError(&quot;HTTP%d&quot; % r.status_code)  # 401 / 429 / 5xx
+        return r.json()[&quot;choices&quot;][0][&quot;message&quot;][&quot;content&quot;]
+    finally:
+        r.close()                                  # всегда освобождаем сокет
+
+
+def pick_word(text, allowed):
+    &quot;&quot;&quot;Ищет в свободном тексте ровно одно допустимое слово, иначе None.&quot;&quot;&quot;
+    t = text.upper()
+    found = [w for w in allowed if w in t]
+    return found[0] if len(found) == 1 else None
+
+
+def ai_check():
+    &quot;&quot;&quot;Проверочный запрос при запуске -&gt; True, если сервис отвечает.&quot;&quot;&quot;
+    log(&quot;AI_REQ&quot;)
+    try:
+        ai_request(&quot;Reply with one word: OK&quot;)   # важен сам код 200
+        log(&quot;AI_ANS&quot;, &quot;OK&quot;)
+        return True
+    except Exception as e:
+        log(&quot;AI_ERR&quot;, e)
+        return False
+
+
+def ai_step(now):
+    &quot;&quot;&quot;Раз в 10 с отправляет 10 последних значений и ждёт оценку.&quot;&quot;&quot;
+    global ai_text, ai_last, next_ai
+    if time.ticks_diff(now, next_ai) &lt; 0 or len(history) &lt; HIST_N:
+        return
+    values = &quot;,&quot;.join([&quot;%.1f&quot; % v for v in history])
+    ai_text = &quot;...&quot;
+    draw()                                         # показать &quot;AI: ...&quot; до запроса
+    log(&quot;AI_REQ&quot;)
+    try:
+        word = pick_word(ai_request(PROMPT.format(values)), AI_WORDS)
+        if word is None:
+            log(&quot;AI_BAD&quot;)
+            ai_text, ai_last = &quot;---&quot;, None
+        else:
+            log(&quot;AI_ANS&quot;, word)
+            ai_text, ai_last = word, word
+        next_ai = time.ticks_add(time.ticks_ms(), AI_PERIOD_MS)
+    except Exception as e:
+        log(&quot;AI_ERR&quot;, e)
+        ai_text, ai_last = &quot;---&quot;, None
+        next_ai = time.ticks_add(time.ticks_ms(), AI_RETRY_MS)
+
+
+# ---------------- Измерение и фильтр ----------------
+def read_cm():
+    &quot;&quot;&quot;Одно измерение в см или None, если некорректно.&quot;&quot;&quot;
+    try:
+        d = sensor.distance_cm()   # СВЕРИТЬ имя метода с HCSR04.py (dir(sensor))
+    except Exception:
+        return None                # драйвер вызвал ошибку (тайм-аут эха и т.п.)
+    if d is None or d &lt; DIST_MIN or d &gt; DIST_MAX:
+        return None
+    return d
+
+
+def median(values):
+    s = sorted(values)
+    n = len(s)
+    if n % 2:
+        return s[n // 2]
+    return (s[n // 2 - 1] + s[n // 2]) / 2
+
+
+def zone_of(d):
+    if d &lt; ZONE_NEAR:
+        return &quot;NEAR&quot;
+    if d &lt;= ZONE_FAR:              # от 20 до 50 включительно
+        return &quot;MID&quot;
+    return &quot;FAR&quot;
+
+
+def measure():
+    &quot;&quot;&quot;Вызывается по флагу таймера каждые 200 мс.&quot;&quot;&quot;
+    global dist, zone
+    d = read_cm()
+    if d is None:
+        dist = None
+        log(-1, &quot;OUT&quot;)
+    else:
+        buf.append(d)
+        if len(buf) &gt; FILTER_N:
+            buf.pop(0)
+        dist = median(buf)
+        zone = zone_of(dist)
+        log(&quot;%.1f&quot; % dist, zone)
+    draw()
+
+
+# ---------------- Экран ----------------
+def draw_bar(d):
+    fill = int(BAR_W * (BAR_RANGE - min(d, BAR_RANGE)) / BAR_RANGE)
+    oled.rect(BAR_X, BAR_Y, BAR_W, BAR_H, 1)
+    oled.fill_rect(BAR_X, BAR_Y, fill, BAR_H, 1)
+
+
+def draw():
+    oled.fill(0)                                   # очистка перед обновлением
+    oled.text(&quot;HCSR04&quot;, 0, LINE_Y[0])
+    if dist is None:
+        oled.text(&quot;OUT OF RANGE&quot;, 0, 24)
+        oled.invert(0)
+    else:
+        oled.text(&quot;Dist: %.1f cm&quot; % dist, 0, LINE_Y[1])
+        oled.text(&quot;Zone: &quot; + zone, 0, LINE_Y[2])
+        oled.text(&quot;AI: &quot; + ai_text, 0, LINE_Y[3])
+        draw_bar(dist)
+        warn = zone == &quot;NEAR&quot; and ai_last == &quot;APPROACH&quot;
+        oled.invert(1 if warn else 0)              # предупреждение
+    oled.show()
+
+
+def start_screen():
+    oled.fill(0)
+    oled.text(&quot;IoT STATION &quot; + STATION, 0, 0)
+    oled.show()
+    wifi_ok = wifi_connect()
+    ai_ok = wifi_ok and ai_check()
+    oled.text(&quot;WiFi: &quot; + (&quot;OK&quot; if wifi_ok else &quot;FAIL&quot;), 0, 24)
+    oled.text(&quot;AI: &quot; + (&quot;READY&quot; if ai_ok else &quot;OFFLINE&quot;), 0, 40)
+    oled.show()
+    time.sleep_ms(START_SCREEN_MS)
+
+
+# ---------------- Таймер ----------------
+def on_timer(t):
+    # В прерывании только ставим флаг: I2C, print и HTTP — в основном цикле
+    global tick
+    tick = True
+
+
+# ---------------- Основная программа ----------------
+def main():
+    global tick, next_hist, next_ai
+    start_screen()
+    now = time.ticks_ms()
+    next_hist = now
+    next_ai = time.ticks_add(now, AI_PERIOD_MS)
+    timer = Timer(0)
+    timer.init(period=MEASURE_MS, mode=Timer.PERIODIC, callback=on_timer)
+    while True:
+        try:
+            now = time.ticks_ms()
+            if tick:
+                tick = False
+                measure()
+            if time.ticks_diff(now, next_hist) &gt;= 0:   # история для ИИ, шаг 0.5 с
+                next_hist = time.ticks_add(now, HIST_MS)
+                if dist is not None:
+                    history.append(dist)
+                    if len(history) &gt; HIST_N:
+                        history.pop(0)
+            wifi_keepalive(now)
+            ai_step(now)
+        except Exception as e:                     # программа не должна падать
+            print(&quot;ERR:&quot;, e)
+        time.sleep_ms(5)
+
+
+main()
+</pre></div></details>
+  </article>
+
+  <!-- ---------- A2 ---------- -->
+  <article class="mod" id="m-a2" hidden>
+    <h2>A2 · Индукционная лампа</h2>
+    <p class="prose">Свет в проходе включается, только когда темно и есть человек. После калибровки устройство знает «нормальную» освещённость. Лампа (на экране это значок-круг) горит HOLD секунд после последнего движения. Раз в минуту ИИ по статистике подбирает новое HOLD от 5 до 30 с.</p>
+    <div class="screens">
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="Induction Lamp / CALIBRATING / Wait 5s"><span style="top:calc(0 * var(--px))">Induction Lamp</span><span style="top:calc(24 * var(--px))">CALIBRATING</span><span style="top:calc(40 * var(--px))">Wait 5s</span></div></div><figcaption>Калибровка 5 с</figcaption></figure>
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="Induction Lamp / Light:Low / Motion:YES / Lamp:ON 12s"><span style="top:calc(0 * var(--px))">Induction Lamp</span><span style="top:calc(16 * var(--px))">Light:Low</span><span style="top:calc(32 * var(--px))">Motion:YES</span><span style="top:calc(48 * var(--px))">Lamp:ON 12s</span><div class="lamp on"></div></div></div><figcaption>Лампа включена</figcaption></figure>
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="Induction Lamp / Light:Normal / Motion:NO / Lamp:OFF H:15s"><span style="top:calc(0 * var(--px))">Induction Lamp</span><span style="top:calc(16 * var(--px))">Light:Normal</span><span style="top:calc(32 * var(--px))">Motion:NO</span><span style="top:calc(48 * var(--px))">Lamp:OFF H:15s</span><div class="lamp"></div></div></div><figcaption>Выключена, HOLD = 15 с</figcaption></figure>
+    </div>
+    <h3>Чек-лист проверки</h3>
+    <ul class="check">
+      <li>АЦП: 12 бит (0–4095), ослабление 11 дБ.</li>
+      <li>Калибровка 5 с с обратным отсчётом; порог = 50 % от среднего «в сторону темноты»; в консоли <code>CAL,&lt;среднее&gt;,&lt;порог&gt;</code>.</li>
+      <li>Свет каждые 200 мс, среднее по 4; <code>Light:Normal</code> / <code>Light:Low</code> на y=16 — без пробела после двоеточия.</li>
+      <li>Гистерезис 10 % от порога: на границе состояние не мерцает.</li>
+      <li><code>Motion:YES</code> / <code>Motion:NO</code> на y=32, заголовок <code>Induction Lamp</code> на y=0.</li>
+      <li>Лампа = Light:Low <b>и</b> Motion:YES. Держится HOLD после последнего движения, новое движение перезапускает отсчёт; стало светло → гаснет сразу.</li>
+      <li><code>Lamp:ON Ns</code> (сколько осталось) / <code>Lamp:OFF H:Ns</code> (текущий HOLD) на y=48. Круг x 104–122, y 30–48: залит = вкл, контур = выкл.</li>
+      <li>Каждые 60 с: число срабатываний PIR, секунды работы лампы, секунды темноты, HOLD → ИИ → целое 5…30, применяется со следующего включения.</li>
+      <li>Запрос не выключает лампу и не сбивает отсчёт.</li>
+      <li>В консоли только изменения: <code>LIGHT_LOW</code>, <code>LIGHT_NORMAL</code>, <code>MOTION</code>, <code>LAMP_ON</code>, <code>LAMP_OFF</code>, <code>HOLD,&lt;N&gt;</code>.</li>
+    </ul>
+    <h3>Ловушки</h3>
+    <div class="trap"><b>Направление сигнала</b><p>Если в темноте значение растёт, порог = среднее × 1,5. В ярко освещённом зале (среднее 3000) порог 4500 недостижим, лампа не включится никогда. Если падает — порог = среднее × 0,5. Студент обязан проверить направление ладонью до написания логики.</p></div>
+    <div class="trap"><b>Отсчёт через sleep</b><p><code>time.sleep(10)</code> блокирует всё. Нужен «момент выключения» через <code>ticks_add</code> и сравнение <code>ticks_diff</code> — тогда запрос к ИИ не сбивает таймер.</p></div>
+    <div class="trap"><b>Свой таймер PIR</b><p>PIR сам держит выход в 1 несколько секунд. Значит, «Motion:YES» длится дольше, чем движение, и HOLD фактически считается от спада сигнала.</p></div>
+    <details class="code"><summary>Эталонный код: A2/main.py <small>326 строк · IIoT/A2/main.py</small></summary><div class="codebox"><button class="copy" type="button">Копировать</button><pre class="py"># =====================================================================
+#  WSKZ2026 IIoT — Модуль A2. Индукционная лампа
+#  ESP32 + PIR + датчик освещённости (АЦП) + OLED + ИИ-сервис
+#  Лампа в этом модуле — значок на OLED (отдельного светильника нет).
+# =====================================================================
+import time
+import json
+import gc
+import network
+from machine import Pin, SoftI2C, ADC, Timer
+import ssd1306
+
+try:
+    import requests
+except ImportError:
+    import urequests as requests
+
+try:
+    import secrets
+except ImportError:
+    secrets = None
+
+# ---------------- Константы ----------------
+STATION = &quot;XX&quot;
+PIN_SDA = 23
+PIN_SCL = 19
+PIN_PIR = 27
+PIN_LIGHT = 34            # GPIO34 — только вход, канал ADC1 (работает при Wi-Fi)
+
+LIGHT_MS = 200            # период измерения освещённости
+LIGHT_AVG_N = 4           # среднее по 4 измерениям
+CAL_S = 5                 # калибровка 5 с
+DARK_RATIO = 0.5          # порог = 50 % от среднего в сторону затемнения
+HYST_RATIO = 0.10         # гистерезис 10 % от порога
+DARK_IS_HIGH = True       # СВЕРИТЬ НА СТЕНДЕ: растёт ли значение АЦП при затемнении
+
+HOLD_DEFAULT = 10         # с, начальное время удержания
+HOLD_MIN = 5
+HOLD_MAX = 30
+
+AI_PERIOD_MS = 60000      # статистика раз в минуту
+AI_TIMEOUT_S = 10
+WIFI_RETRY_MS = 10000
+START_SCREEN_MS = 2000
+
+LAMP_CX = 113             # значок лампы: круг x=104..122, y=30..48
+LAMP_CY = 39
+LAMP_R = 9
+
+PROMPT = (&quot;Corridor lamp statistics for the last 60 s: motion triggers={}, &quot;
+          &quot;lamp on time={} s, darkness time={} s, current hold time={} s. &quot;
+          &quot;Recommend lamp hold time to save energy. &quot;
+          &quot;Reply with one integer from 5 to 30 only.&quot;)
+
+# ---------------- Оборудование ----------------
+i2c = SoftI2C(scl=Pin(PIN_SCL), sda=Pin(PIN_SDA))
+oled = ssd1306.SSD1306_I2C(128, 64, i2c)
+pir = Pin(PIN_PIR, Pin.IN)
+adc = ADC(Pin(PIN_LIGHT))
+adc.atten(ADC.ATTN_11DB)        # диапазон входа ~0..3.3 В
+adc.width(ADC.WIDTH_12BIT)      # значения 0..4095
+wlan = network.WLAN(network.STA_IF)
+
+# ---------------- Состояние ----------------
+light_buf = []
+light_avg = 0
+threshold = 0
+light_low = False
+motion = False
+lamp_on = False
+lamp_off_at = 0           # момент выключения (ticks_ms)
+hold = HOLD_DEFAULT       # текущее значение HOLD (меняет ИИ)
+cycle_hold = HOLD_DEFAULT # HOLD, действующий в текущем включении
+stat_motion = 0           # статистика за минуту
+stat_lamp_ms = 0
+stat_low_ms = 0
+tick = False
+next_ai = 0
+next_wifi = 0
+
+
+def log(*parts):
+    print(&quot;,&quot;.join([str(time.ticks_ms())] + [str(p) for p in parts]))
+
+
+# ---------------- Wi-Fi и ИИ (одинаковы во всех модулях) ----------------
+class AIError(Exception):
+    pass
+
+
+def wifi_connect(timeout_ms=10000):
+    if secrets is None:
+        return False
+    try:
+        wlan.active(True)
+        if not wlan.isconnected():
+            wlan.connect(secrets.WIFI_SSID, secrets.WIFI_PASS)
+            t0 = time.ticks_ms()
+            while (not wlan.isconnected()
+                   and time.ticks_diff(time.ticks_ms(), t0) &lt; timeout_ms):
+                time.sleep_ms(200)
+        return wlan.isconnected()
+    except Exception as e:
+        print(&quot;WiFi error:&quot;, e)
+        return False
+
+
+def wifi_keepalive(now):
+    global next_wifi
+    if secrets is None or wlan.isconnected():
+        return
+    if time.ticks_diff(now, next_wifi) &gt;= 0:
+        next_wifi = time.ticks_add(now, WIFI_RETRY_MS)
+        try:
+            wlan.disconnect()
+            wlan.connect(secrets.WIFI_SSID, secrets.WIFI_PASS)
+        except Exception as e:
+            print(&quot;WiFi retry:&quot;, e)
+
+
+def ai_request(prompt):
+    if secrets is None or not wlan.isconnected():
+        raise AIError(&quot;NO_WIFI&quot;)
+    gc.collect()
+    body = {&quot;model&quot;: secrets.MODEL,
+            &quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt}],
+            &quot;max_tokens&quot;: 50, &quot;temperature&quot;: 0}
+    headers = {&quot;Content-Type&quot;: &quot;application/json&quot;,
+               &quot;Authorization&quot;: &quot;Bearer &quot; + secrets.API_KEY}
+    r = requests.post(secrets.API_URL, data=json.dumps(body).encode(),
+                      headers=headers, timeout=AI_TIMEOUT_S)
+    try:
+        if r.status_code != 200:
+            raise AIError(&quot;HTTP%d&quot; % r.status_code)
+        return r.json()[&quot;choices&quot;][0][&quot;message&quot;][&quot;content&quot;]
+    finally:
+        r.close()
+
+
+def ai_check():
+    log(&quot;AI_REQ&quot;)
+    try:
+        ai_request(&quot;Reply with one word: OK&quot;)
+        log(&quot;AI_ANS&quot;, &quot;OK&quot;)
+        return True
+    except Exception as e:
+        log(&quot;AI_ERR&quot;, e)
+        return False
+
+
+def integers_in(text):
+    &quot;&quot;&quot;Все целые числа из текста (в MicroPython нет re.findall).&quot;&quot;&quot;
+    nums, cur = [], &quot;&quot;
+    for ch in text + &quot; &quot;:
+        if &quot;0&quot; &lt;= ch &lt;= &quot;9&quot;:
+            cur += ch
+        elif cur:
+            nums.append(int(cur))
+            cur = &quot;&quot;
+    return nums
+
+
+def ai_step(now):
+    &quot;&quot;&quot;Раз в минуту: статистика -&gt; ИИ -&gt; новое HOLD (5..30).&quot;&quot;&quot;
+    global next_ai, hold, stat_motion, stat_lamp_ms, stat_low_ms
+    if time.ticks_diff(now, next_ai) &lt; 0:
+        return
+    next_ai = time.ticks_add(now, AI_PERIOD_MS)
+    prompt = PROMPT.format(stat_motion, stat_lamp_ms // 1000,
+                           stat_low_ms // 1000, hold)
+    stat_motion, stat_lamp_ms, stat_low_ms = 0, 0, 0   # новая минута
+    log(&quot;AI_REQ&quot;)
+    try:
+        nums = integers_in(ai_request(prompt))
+        if len(nums) == 1 and HOLD_MIN &lt;= nums[0] &lt;= HOLD_MAX:
+            log(&quot;AI_ANS&quot;, nums[0])
+            if nums[0] != hold:
+                hold = nums[0]                 # применится со след. включения
+                log(&quot;HOLD&quot;, hold)
+        else:
+            log(&quot;AI_BAD&quot;)                      # HOLD не меняем
+    except Exception as e:
+        log(&quot;AI_ERR&quot;, e)                       # HOLD не меняем
+
+
+# ---------------- Освещённость ----------------
+def calibrate():
+    &quot;&quot;&quot;5 с измеряем фон, считаем порог темноты.&quot;&quot;&quot;
+    global threshold
+    total, n = 0, 0
+    for left in range(CAL_S, 0, -1):
+        oled.fill(0)
+        oled.text(&quot;Induction Lamp&quot;, 0, 0)
+        oled.text(&quot;CALIBRATING&quot;, 0, 24)
+        oled.text(&quot;Wait %ds&quot; % left, 0, 40)
+        oled.show()
+        t0 = time.ticks_ms()
+        while time.ticks_diff(time.ticks_ms(), t0) &lt; 1000:
+            total += adc.read()
+            n += 1
+            time.sleep_ms(LIGHT_MS)
+    avg = total // n
+    if DARK_IS_HIGH:                       # темнее -&gt; больше
+        threshold = min(4095, int(avg * (1 + DARK_RATIO)))
+    else:                                  # темнее -&gt; меньше
+        threshold = int(avg * (1 - DARK_RATIO))
+    print(&quot;CAL,%d,%d&quot; % (avg, threshold))
+
+
+def update_light():
+    &quot;&quot;&quot;Среднее по 4 измерениям + гистерезис 10 % от порога.&quot;&quot;&quot;
+    global light_avg, light_low
+    light_buf.append(adc.read())
+    if len(light_buf) &gt; LIGHT_AVG_N:
+        light_buf.pop(0)
+    light_avg = sum(light_buf) // len(light_buf)
+    h = threshold * HYST_RATIO
+    if DARK_IS_HIGH:                       # темнее -&gt; больше
+        if light_low:
+            new_low = light_avg &gt; threshold - h   # выйти из Low чуть ниже порога
+        else:
+            new_low = light_avg &gt; threshold
+    else:                                  # темнее -&gt; меньше
+        if light_low:
+            new_low = light_avg &lt; threshold + h
+        else:
+            new_low = light_avg &lt; threshold
+    if new_low != light_low:
+        light_low = new_low
+        log(&quot;LIGHT_LOW&quot; if light_low else &quot;LIGHT_NORMAL&quot;)
+
+
+# ---------------- Лампа ----------------
+def update_lamp(now):
+    global motion, lamp_on, lamp_off_at, cycle_hold, stat_motion
+    m = pir.value() == 1
+    if m and not motion:                   # фронт 0-&gt;1 = новое срабатывание
+        stat_motion += 1
+        log(&quot;MOTION&quot;)
+    motion = m
+    if light_low and motion:
+        if not lamp_on:
+            lamp_on = True
+            cycle_hold = hold              # новое HOLD — только с нового включения
+            log(&quot;LAMP_ON&quot;)
+        lamp_off_at = time.ticks_add(now, cycle_hold * 1000)  # перезапуск отсчёта
+    if lamp_on and (not light_low or time.ticks_diff(now, lamp_off_at) &gt;= 0):
+        lamp_on = False                    # стало светло или вышло время
+        log(&quot;LAMP_OFF&quot;)
+
+
+def lamp_left_s(now):
+    ms = time.ticks_diff(lamp_off_at, now)
+    return max(0, (ms + 999) // 1000)      # округляем вверх
+
+
+# ---------------- Экран ----------------
+def draw_circle(filled):
+    if hasattr(oled, &quot;ellipse&quot;):           # MicroPython &gt;= 1.20
+        oled.ellipse(LAMP_CX, LAMP_CY, LAMP_R, LAMP_R, 1, filled)
+        return
+    r2 = LAMP_R * LAMP_R                   # запасной вариант для старой прошивки
+    for dy in range(-LAMP_R, LAMP_R + 1):
+        for dx in range(-LAMP_R, LAMP_R + 1):
+            d2 = dx * dx + dy * dy
+            if d2 &lt;= r2 and (filled or d2 &gt; r2 - 2 * LAMP_R):
+                oled.pixel(LAMP_CX + dx, LAMP_CY + dy, 1)
+
+
+def draw(now):
+    oled.fill(0)
+    oled.text(&quot;Induction Lamp&quot;, 0, 0)
+    oled.text(&quot;Light:Low&quot; if light_low else &quot;Light:Normal&quot;, 0, 16)
+    oled.text(&quot;Motion:YES&quot; if motion else &quot;Motion:NO&quot;, 0, 32)
+    if lamp_on:
+        oled.text(&quot;Lamp:ON %ds&quot; % lamp_left_s(now), 0, 48)
+    else:
+        oled.text(&quot;Lamp:OFF H:%ds&quot; % hold, 0, 48)
+    draw_circle(lamp_on)
+    oled.show()
+
+
+def start_screen():
+    oled.fill(0)
+    oled.text(&quot;IoT STATION &quot; + STATION, 0, 0)
+    oled.show()
+    wifi_ok = wifi_connect()
+    ai_ok = wifi_ok and ai_check()
+    oled.text(&quot;WiFi: &quot; + (&quot;OK&quot; if wifi_ok else &quot;FAIL&quot;), 0, 24)
+    oled.text(&quot;AI: &quot; + (&quot;READY&quot; if ai_ok else &quot;OFFLINE&quot;), 0, 40)
+    oled.show()
+    time.sleep_ms(START_SCREEN_MS)
+
+
+def on_timer(t):
+    global tick
+    tick = True
+
+
+def main():
+    global tick, next_ai, stat_lamp_ms, stat_low_ms
+    start_screen()
+    calibrate()
+    next_ai = time.ticks_add(time.ticks_ms(), AI_PERIOD_MS)
+    timer = Timer(0)
+    timer.init(period=LIGHT_MS, mode=Timer.PERIODIC, callback=on_timer)
+    while True:
+        try:
+            now = time.ticks_ms()
+            if tick:
+                tick = False
+                update_light()
+                if lamp_on:
+                    stat_lamp_ms += LIGHT_MS
+                if light_low:
+                    stat_low_ms += LIGHT_MS
+                draw(now)
+            update_lamp(now)
+            wifi_keepalive(now)
+            ai_step(now)                   # отсчёт лампы по ticks_ms — не сбивается
+        except Exception as e:
+            print(&quot;ERR:&quot;, e)
+        time.sleep_ms(50)
+
+
+main()
+</pre></div></details>
+  </article>
+
+  <!-- ---------- B1 ---------- -->
+  <article class="mod" id="m-b1" hidden>
+    <h2>B1 · Контроль загазованности</h2>
+    <p class="prose">Датчик газа в техпомещении. Устройство проходит три этапа: прогрев 30 с, фоновые измерения 60 с, получение порога от ИИ. Затем раз в секунду считает скользящее среднее и при превышении порога мигает красным.</p>
+    <div class="screens">
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="Gas / Preheating / Left: 25 s"><span style="top:calc(0 * var(--px))">Gas</span><span style="top:calc(24 * var(--px))">Preheating</span><span style="top:calc(40 * var(--px))">Left: 25 s</span></div></div><figcaption>Прогрев 30 с</figcaption></figure>
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="Gas / AI CALIB / Left: 42 s"><span style="top:calc(0 * var(--px))">Gas</span><span style="top:calc(24 * var(--px))">AI CALIB</span><span style="top:calc(40 * var(--px))">Left: 42 s</span></div></div><figcaption>Фон 60 с</figcaption></figure>
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="Gas / 488/4095 / Thr: 540 AI / No Panic"><span style="top:calc(0 * var(--px))">Gas</span><span style="top:calc(16 * var(--px))">488/4095</span><span style="top:calc(32 * var(--px))">Thr: 540 AI</span><span style="top:calc(48 * var(--px))">No Panic</span></div></div><figcaption>Норма</figcaption></figure>
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="Gas / 558/4095 / Thr: 540 AI / Danger!!"><span style="top:calc(0 * var(--px))">Gas</span><span style="top:calc(16 * var(--px))">558/4095</span><span style="top:calc(32 * var(--px))">Thr: 540 AI</span><span style="top:calc(48 * var(--px))">Danger!!</span></div></div><figcaption>Тревога</figcaption></figure>
+    </div>
+    <pre class="mermaid">
+stateDiagram-v2
+  [*] --> HEAT: старт + экран запуска
+  HEAT --> CAL: 30 с прошло
+  CAL --> OK: 60 значений → ИИ → порог AI или DEF
+  OK --> ALARM: среднее > порога
+  ALARM --> OK: среднее < порог − 20
+    </pre>
+    <h3>Чек-лист проверки</h3>
+    <ul class="check">
+      <li>Прогрев 30 с: <code>Gas</code>, <code>Preheating</code>, <code>Left: N s</code>; тревога в это время не включается.</li>
+      <li>Фон 60 с по 1 значению в секунду: <code>AI CALIB</code>, <code>Left: N s</code>.</li>
+      <li>Порог от ИИ — целое, больше максимума фона и не больше 4000 → <code>Thr: XXX AI</code>. Иначе <code>THRESHOLD_DEFAULT</code> (число объявит эксперт) → <code>Thr: XXX DEF</code>.</li>
+      <li>Консоль: <code>CAL,&lt;среднее фона&gt;,&lt;максимум&gt;,&lt;порог&gt;,&lt;AI|DEF&gt;</code>.</li>
+      <li>Измерение по таймеру 1000 мс, скользящее среднее по 5.</li>
+      <li>Экран: <code>Gas</code>, <code>XXX/4095</code>, строка порога, <code>No Panic</code> / <code>Danger!!</code>.</li>
+      <li>Гистерезис: обратно в норму, только когда среднее &lt; порог − 20.</li>
+      <li>Тревога: все 4 WS2812 мигают красным 1 с / 1 с; в норме выключены.</li>
+      <li>Журнал каждого измерения: <code>мс,значение,среднее,состояние</code>; состояния HEAT, CAL, OK, ALARM.</li>
+    </ul>
+    <h3>Ловушки</h3>
+    <div class="trap"><b>Порог, которого не достать выдохом</b><p>ИИ может вернуть порог 2000 при фоне 400. По правилам он допустим (больше фона, ≤4000), но выдохом тревогу не вызвать. Хороший промпт просит «немного выше шума фона» и передаёт максимум фона.</p></div>
+    <div class="trap"><b>Забытый np.write()</b><p>Цвет присваивается в буфер, а лента меняется только после <code>np.write()</code>.</p></div>
+    <div class="trap"><b>Мигание через sleep</b><p>Мигать нужно по времени (<code>ticks_diff</code> от начала тревоги), иначе мигание собьёт период измерений.</p></div>
+    <details class="code"><summary>Эталонный код: B1/main.py <small>277 строк · IIoT/B1/main.py</small></summary><div class="codebox"><button class="copy" type="button">Копировать</button><pre class="py"># =====================================================================
+#  WSKZ2026 IIoT — Модуль B1. Контроль загазованности
+#  ESP32 + MQ-2 (АЦП) + WS2812 (4 светодиода) + OLED + ИИ-сервис
+#  Этапы: прогрев 30 с -&gt; фон 60 с -&gt; ИИ-порог -&gt; измерение/тревога
+# =====================================================================
+import time
+import json
+import gc
+import network
+from machine import Pin, SoftI2C, ADC, Timer
+from neopixel import NeoPixel
+import ssd1306
+
+try:
+    import requests
+except ImportError:
+    import urequests as requests
+
+try:
+    import secrets
+except ImportError:
+    secrets = None
+
+# ---------------- Константы ----------------
+STATION = &quot;XX&quot;
+PIN_SDA = 23
+PIN_SCL = 19
+PIN_GAS = 34              # ADC1, вход
+PIN_RGB = 25              # DI WS2812
+LED_N = 4
+
+MEASURE_MS = 1000         # период таймера (как в руководстве)
+AVG_N = 5                 # скользящее среднее
+PREHEAT_S = 30
+CAL_S = 60
+THRESHOLD_DEFAULT = 500   # ОБЪЯВЛЯЕТ ЭКСПЕРТ перед модулем
+THR_MAX = 4000
+HYST = 20                 # выход из тревоги ниже (порог - 20)
+BLINK_MS = 1000           # 1 с горят / 1 с не горят
+RED = (255, 0, 0)
+OFF = (0, 0, 0)
+
+AI_TIMEOUT_S = 10
+WIFI_RETRY_MS = 10000
+START_SCREEN_MS = 2000
+
+PROMPT = (&quot;Gas sensor MQ-2, 12-bit ADC (0-4095). 60 background readings in &quot;
+          &quot;clean air, 1 per second: {}. Max={}. Suggest an alarm threshold &quot;
+          &quot;above the background noise. Reply with one integer only.&quot;)
+
+# ---------------- Оборудование ----------------
+i2c = SoftI2C(scl=Pin(PIN_SCL), sda=Pin(PIN_SDA))
+oled = ssd1306.SSD1306_I2C(128, 64, i2c)
+adc = ADC(Pin(PIN_GAS))
+adc.atten(ADC.ATTN_11DB)
+adc.width(ADC.WIDTH_12BIT)
+np = NeoPixel(Pin(PIN_RGB), LED_N)
+wlan = network.WLAN(network.STA_IF)
+
+# ---------------- Состояние ----------------
+state = &quot;HEAT&quot;            # HEAT -&gt; CAL -&gt; OK / ALARM
+seconds = 0               # секунд в текущем этапе
+window = []               # последние 5 значений
+background = []           # 60 фоновых значений
+threshold = THRESHOLD_DEFAULT
+thr_src = &quot;DEF&quot;
+avg = 0
+tick = False
+alarm_since = 0
+leds_on = None
+next_wifi = 0
+
+
+def log(*parts):
+    print(&quot;,&quot;.join([str(time.ticks_ms())] + [str(p) for p in parts]))
+
+
+# ---------------- Wi-Fi и ИИ ----------------
+class AIError(Exception):
+    pass
+
+
+def wifi_connect(timeout_ms=10000):
+    if secrets is None:
+        return False
+    try:
+        wlan.active(True)
+        if not wlan.isconnected():
+            wlan.connect(secrets.WIFI_SSID, secrets.WIFI_PASS)
+            t0 = time.ticks_ms()
+            while (not wlan.isconnected()
+                   and time.ticks_diff(time.ticks_ms(), t0) &lt; timeout_ms):
+                time.sleep_ms(200)
+        return wlan.isconnected()
+    except Exception as e:
+        print(&quot;WiFi error:&quot;, e)
+        return False
+
+
+def wifi_keepalive(now):
+    global next_wifi
+    if secrets is None or wlan.isconnected():
+        return
+    if time.ticks_diff(now, next_wifi) &gt;= 0:
+        next_wifi = time.ticks_add(now, WIFI_RETRY_MS)
+        try:
+            wlan.disconnect()
+            wlan.connect(secrets.WIFI_SSID, secrets.WIFI_PASS)
+        except Exception as e:
+            print(&quot;WiFi retry:&quot;, e)
+
+
+def ai_request(prompt):
+    if secrets is None or not wlan.isconnected():
+        raise AIError(&quot;NO_WIFI&quot;)
+    gc.collect()
+    body = {&quot;model&quot;: secrets.MODEL,
+            &quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt}],
+            &quot;max_tokens&quot;: 50, &quot;temperature&quot;: 0}
+    headers = {&quot;Content-Type&quot;: &quot;application/json&quot;,
+               &quot;Authorization&quot;: &quot;Bearer &quot; + secrets.API_KEY}
+    r = requests.post(secrets.API_URL, data=json.dumps(body).encode(),
+                      headers=headers, timeout=AI_TIMEOUT_S)
+    try:
+        if r.status_code != 200:
+            raise AIError(&quot;HTTP%d&quot; % r.status_code)
+        return r.json()[&quot;choices&quot;][0][&quot;message&quot;][&quot;content&quot;]
+    finally:
+        r.close()
+
+
+def ai_check():
+    log(&quot;AI_REQ&quot;)
+    try:
+        ai_request(&quot;Reply with one word: OK&quot;)
+        log(&quot;AI_ANS&quot;, &quot;OK&quot;)
+        return True
+    except Exception as e:
+        log(&quot;AI_ERR&quot;, e)
+        return False
+
+
+def integers_in(text):
+    nums, cur = [], &quot;&quot;
+    for ch in text + &quot; &quot;:
+        if &quot;0&quot; &lt;= ch &lt;= &quot;9&quot;:
+            cur += ch
+        elif cur:
+            nums.append(int(cur))
+            cur = &quot;&quot;
+    return nums
+
+
+def ai_threshold():
+    &quot;&quot;&quot;Отправляет 60 фоновых значений, применяет порог AI или DEF.&quot;&quot;&quot;
+    global threshold, thr_src
+    bg_max = max(background)
+    bg_avg = sum(background) // len(background)
+    threshold, thr_src = THRESHOLD_DEFAULT, &quot;DEF&quot;
+    log(&quot;AI_REQ&quot;)
+    try:
+        nums = integers_in(ai_request(
+            PROMPT.format(&quot;,&quot;.join([str(v) for v in background]), bg_max)))
+        if len(nums) == 1 and bg_max &lt; nums[0] &lt;= THR_MAX:
+            threshold, thr_src = nums[0], &quot;AI&quot;
+            log(&quot;AI_ANS&quot;, nums[0])
+        else:
+            log(&quot;AI_BAD&quot;)
+    except Exception as e:
+        log(&quot;AI_ERR&quot;, e)
+    print(&quot;CAL,%d,%d,%d,%s&quot; % (bg_avg, bg_max, threshold, thr_src))
+
+
+# ---------------- Светодиоды ----------------
+def set_leds(on):
+    global leds_on
+    if on == leds_on:          # пишем в ленту только при изменении
+        return
+    leds_on = on
+    for i in range(LED_N):
+        np[i] = RED if on else OFF
+    np.write()
+
+
+def update_leds(now):
+    if state == &quot;ALARM&quot;:
+        phase = (time.ticks_diff(now, alarm_since) // BLINK_MS) % 2
+        set_leds(phase == 0)
+    else:
+        set_leds(False)
+
+
+# ---------------- Экран ----------------
+def screen(lines):
+    &quot;&quot;&quot;lines: список (y, текст).&quot;&quot;&quot;
+    oled.fill(0)
+    for y, txt in lines:
+        oled.text(txt, 0, y)
+    oled.show()
+
+
+def draw():
+    if state == &quot;HEAT&quot;:
+        screen([(0, &quot;Gas&quot;), (24, &quot;Preheating&quot;),
+                (40, &quot;Left: %d s&quot; % (PREHEAT_S - seconds))])
+    elif state == &quot;CAL&quot;:
+        screen([(0, &quot;Gas&quot;), (24, &quot;AI CALIB&quot;),
+                (40, &quot;Left: %d s&quot; % (CAL_S - seconds))])
+    else:
+        screen([(0, &quot;Gas&quot;), (16, &quot;%d/4095&quot; % avg),
+                (32, &quot;Thr: %d %s&quot; % (threshold, thr_src)),
+                (48, &quot;Danger!!&quot; if state == &quot;ALARM&quot; else &quot;No Panic&quot;)])
+
+
+def start_screen():
+    screen([(0, &quot;IoT STATION &quot; + STATION)])
+    wifi_ok = wifi_connect()
+    ai_ok = wifi_ok and ai_check()
+    screen([(0, &quot;IoT STATION &quot; + STATION),
+            (24, &quot;WiFi: &quot; + (&quot;OK&quot; if wifi_ok else &quot;FAIL&quot;)),
+            (40, &quot;AI: &quot; + (&quot;READY&quot; if ai_ok else &quot;OFFLINE&quot;))])
+    time.sleep_ms(START_SCREEN_MS)
+
+
+# ---------------- Измерение (раз в секунду) ----------------
+def measure():
+    global state, seconds, avg, alarm_since
+    raw = adc.read()
+    window.append(raw)
+    if len(window) &gt; AVG_N:
+        window.pop(0)
+    avg = sum(window) // len(window)
+    seconds += 1
+    # тревога с гистерезисом (только после калибровки)
+    if state == &quot;OK&quot; and avg &gt; threshold:
+        state = &quot;ALARM&quot;
+        alarm_since = time.ticks_ms()
+    elif state == &quot;ALARM&quot; and avg &lt; threshold - HYST:
+        state = &quot;OK&quot;
+    log(raw, avg, state)                    # время_мс,значение,среднее,состояние
+    if state == &quot;HEAT&quot; and seconds &gt;= PREHEAT_S:
+        state, seconds = &quot;CAL&quot;, 0           # прогрев закончен
+    elif state == &quot;CAL&quot;:
+        background.append(raw)              # 1 фоновое значение в секунду
+        if seconds &gt;= CAL_S:
+            draw()
+            ai_threshold()                  # пауза цикла &lt;= 10 с допустима
+            state, seconds = &quot;OK&quot;, 0
+    draw()
+
+
+def on_timer(t):
+    global tick
+    tick = True
+
+
+def main():
+    global tick
+    set_leds(False)
+    start_screen()
+    draw()
+    timer = Timer(0)
+    timer.init(period=MEASURE_MS, mode=Timer.PERIODIC, callback=on_timer)
+    while True:
+        try:
+            now = time.ticks_ms()
+            if tick:
+                tick = False
+                measure()
+            update_leds(now)
+            wifi_keepalive(now)
+        except Exception as e:
+            print(&quot;ERR:&quot;, e)
+        time.sleep_ms(20)
+
+
+main()
+</pre></div></details>
+  </article>
+
+  <!-- ---------- B2 ---------- -->
+  <article class="mod" id="m-b2" hidden>
+    <h2>B2 · RFID-контроль доступа</h2>
+    <p class="prose">Электронные пропуска на картах MIFARE S50. Считыватель находит карту, сверяет UID со справочником <code>users.json</code>, читает имя из блока 8 и счётчик проходов из блока 9, при успехе увеличивает счётчик. ИИ оценивает риск по последним 10 записям журнала.</p>
+    <div class="screens">
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="Access Control / Place card / Risk: LOW"><span style="top:calc(0 * var(--px))">Access Control</span><span style="top:calc(24 * var(--px))">Place card</span><span style="top:calc(48 * var(--px))">Risk: LOW</span></div></div><figcaption>Ожидание</figcaption></figure>
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="ACCESS OK / UID:9A3F12C4 / Name:ASKAR / Visits: 7"><span style="top:calc(0 * var(--px))">ACCESS OK</span><span style="top:calc(16 * var(--px))">UID:9A3F12C4</span><span style="top:calc(32 * var(--px))">Name:ASKAR</span><span style="top:calc(48 * var(--px))">Visits: 7</span></div></div><figcaption>Доступ разрешён</figcaption></figure>
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="DENIED / UID:5B71E0A2 / Unknown card"><span style="top:calc(0 * var(--px))">DENIED</span><span style="top:calc(16 * var(--px))">UID:5B71E0A2</span><span style="top:calc(32 * var(--px))">Unknown card</span></div></div><figcaption>Отказ</figcaption></figure>
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="REGISTER / UID:9A3F12C4 / Write: ASKAR / WRITE OK"><span style="top:calc(0 * var(--px))">REGISTER</span><span style="top:calc(16 * var(--px))">UID:9A3F12C4</span><span style="top:calc(32 * var(--px))">Write: ASKAR</span><span style="top:calc(48 * var(--px))">WRITE OK</span></div></div><figcaption>Регистрация</figcaption></figure>
+    </div>
+    <h3>Чек-лист проверки</h3>
+    <ul class="check">
+      <li>Пины RST 16, NSS 13, SCK 15, MOSI 32, MISO 2; инициализация <code>Init_spi()</code>.</li>
+      <li>Поиск <code>SeekCard(0x52)</code> в цикле с паузой 200 мс; в консоли <code>tag type: 0x0400</code>.</li>
+      <li>Ожидание: <code>Access Control</code> (y=0), <code>Place card</code> (y=24), <code>Risk: …</code> (y=48).</li>
+      <li>UID — первые 4 байта, 8 HEX-символов, верхний регистр: <code>UID:9A3F12C4</code>.</li>
+      <li><code>users.json</code> на плате: <code>{"9A3F12C4": "ASKAR"}</code>, имя латиницей ≤11 символов; в справочнике одна карта из двух.</li>
+      <li><code>register()</code> вызывается из консоли Thonny: select → auth сектора 2 ключом A (6 × 0xFF) → блок 8 = имя + пробелы до 16 байт, блок 9 = 0. Экран REGISTER / UID / <code>Write: имя</code> / WRITE OK или WRITE ERROR.</li>
+      <li>Писать можно только в блоки 8 и 9.</li>
+      <li>Доступ: UID в справочнике и имя в блоке 8 совпадает → ACCESS OK, имя, <code>Visits: N</code>, счётчик +1 записан в блок 9. Иначе DENIED и причина <code>Unknown card</code> / <code>Data mismatch</code>.</li>
+      <li>Ошибки <code>Authentication error</code>, <code>Failed to select tag</code> — в консоль, программа работает дальше.</li>
+      <li>После работы с картой <code>stop_crypto1()</code>; результат 2 с; та же карта — не раньше чем через 3 с.</li>
+      <li>ИИ после каждой попытки: 10 последних записей → LOW/MEDIUM/HIGH; <code>Risk: N/A</code> до первой оценки и при ошибке; HIGH → экран ожидания инверсный + <code>мс,ALERT</code>.</li>
+      <li>Журнал: <code>мс,UID,имя,результат,проходы</code>; OK / UNKNOWN / MISMATCH; у отказов вместо имени и счётчика <code>-</code>.</li>
+      <li>Сдать: <code>main.py</code>, <code>users.json</code>, <code>secrets_example.py</code> + зарегистрированную карту.</li>
+    </ul>
+    <h3>Ловушки</h3>
+    <div class="trap"><b>Как вызвать register() из консоли</b><p>main.py крутит бесконечный цикл. Порядок: запустить main.py в Thonny (F5) → <kbd>Ctrl</kbd>+<kbd>C</kbd> → в Shell набрать <code>register()</code>. Работает, только если в цикле нет голого <code>except:</code> — он ловит и Ctrl+C. Используем <code>except Exception</code>.</p></div>
+    <div class="trap"><b>Счётчик в 16 байтах</b><p>Формат счётчика в блоке 9 не задан. Эталон пишет 4 байта big-endian + 12 нулей (<code>n.to_bytes(4, "big")</code>). Главное — студент может объяснить свой выбор.</p></div>
+    <div class="trap"><b>Карта вплотную</b><p>Карта, прижатая к антенне, ловится нестабильно. Держать в 1–3 см.</p></div>
+    <details class="code"><summary>Эталонный код: B2/main.py <small>385 строк · IIoT/B2/main.py</small></summary><div class="codebox"><button class="copy" type="button">Копировать</button><pre class="py"># =====================================================================
+#  WSKZ2026 IIoT — Модуль B2. RFID-контроль доступа
+#  ESP32 + MFRC522 (SPI) + карты MIFARE S50 + OLED + ИИ-сервис
+#  Регистрация карты: запустить main.py в Thonny, Ctrl+C, в Shell: register()
+# =====================================================================
+import time
+import json
+import gc
+import network
+from machine import Pin, SoftI2C
+import ssd1306
+import rc522
+
+try:
+    import requests
+except ImportError:
+    import urequests as requests
+
+try:
+    import secrets
+except ImportError:
+    secrets = None
+
+# ---------------- Константы ----------------
+STATION = &quot;XX&quot;
+PIN_SDA = 23
+PIN_SCL = 19
+PIN_RST = 16
+PIN_NSS = 13
+PIN_SCK = 15
+PIN_MOSI = 32
+PIN_MISO = 2
+
+POLL_MS = 200             # пауза цикла опроса
+RESULT_MS = 2000          # результат на экране 2 с
+SAME_CARD_MS = 3000       # повтор той же карты не раньше 3 с
+REQ_ALL = 0x52            # команда поиска всех карт (WUPA)
+AUTH_KEY_A = 0x60         # AUTHENT1A
+KEY_A = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]   # заводской ключ
+BLOCK_NAME = 8            # сектор 2, блок 0 — имя (16 байт)
+BLOCK_VISITS = 9          # сектор 2, блок 1 — счётчик проходов
+USERS_FILE = &quot;users.json&quot;
+NAME_MAX = 11
+LOG_N = 10                # сколько записей журнала отправлять ИИ
+
+AI_TIMEOUT_S = 10
+AI_MIN_GAP_MS = 5000      # не чаще 1 запроса в 5 с
+AI_RETRY_MS = 10000       # после ошибки — не раньше 10 с
+WIFI_RETRY_MS = 10000
+START_SCREEN_MS = 2000
+RISK_WORDS = (&quot;LOW&quot;, &quot;MEDIUM&quot;, &quot;HIGH&quot;)
+PROMPT = (&quot;Greenhouse door access log, format time_ms,uid,name,result,visits &quot;
+          &quot;(result OK, UNKNOWN or MISMATCH):\n{}\nEstimate the security risk. &quot;
+          &quot;Reply with exactly one word: LOW, MEDIUM or HIGH.&quot;)
+
+# ---------------- Оборудование ----------------
+i2c = SoftI2C(scl=Pin(PIN_SCL), sda=Pin(PIN_SDA))
+oled = ssd1306.SSD1306_I2C(128, 64, i2c)
+wlan = network.WLAN(network.STA_IF)
+
+# ===== Обёртки драйвера rc522.py — СВЕРИТЬ с файлом драйвера на площадке =====
+rfid = rc522.RC522()                                   # имя класса — сверить
+rfid.Init_spi(PIN_RST, PIN_NSS, PIN_SCK, PIN_MOSI, PIN_MISO)  # порядок — сверить
+MI_OK = rc522.MI_OK if hasattr(rc522, &quot;MI_OK&quot;) else rfid.MI_OK
+
+
+def card_seek():
+    &quot;&quot;&quot;-&gt; (True, tag_type) если карта есть. tag_type — 2 байта.&quot;&quot;&quot;
+    stat, tag_type = rfid.SeekCard(REQ_ALL)
+    return stat == MI_OK, tag_type
+
+
+def card_uid():
+    &quot;&quot;&quot;-&gt; список из 5 байт (4 байта UID + контрольный BCC) или None.&quot;&quot;&quot;
+    stat, uid = rfid.Anticoll()
+    return uid if stat == MI_OK else None
+
+
+def card_open(uid):
+    &quot;&quot;&quot;select_tag + авторизация сектора 2 ключом A. -&gt; True/False.&quot;&quot;&quot;
+    if rfid.select_tag(uid) != MI_OK:
+        print(&quot;Failed to select tag&quot;)
+        return False
+    if rfid.auth(AUTH_KEY_A, BLOCK_NAME, KEY_A, uid) != MI_OK:
+        print(&quot;Authentication error&quot;)
+        return False
+    return True
+
+
+def card_read(block):
+    data = rfid.read(block)            # СВЕРИТЬ: список 16 байт или (stat, data)
+    if isinstance(data, tuple):
+        data = data[1] if data[0] == MI_OK else None
+    if data is None or len(data) &lt; 16:
+        raise OSError(&quot;read error&quot;)
+    return bytes(data[:16])
+
+
+def card_write(block, data16):
+    if block not in (BLOCK_NAME, BLOCK_VISITS):        # защита служебных блоков!
+        raise ValueError(&quot;forbidden block&quot;)
+    return rfid.write(block, data16) == MI_OK
+# =============================================================================
+
+
+# ---------------- Состояние ----------------
+users = {}
+access_log = []           # последние 10 строк журнала
+risk = &quot;N/A&quot;
+last_uid = &quot;&quot;
+last_uid_ms = 0
+ai_wait_until = 0         # раньше этого момента запрос не отправляем
+next_wifi = 0
+
+
+def log(*parts):
+    print(&quot;,&quot;.join([str(time.ticks_ms())] + [str(p) for p in parts]))
+
+
+# ---------------- Wi-Fi и ИИ ----------------
+class AIError(Exception):
+    pass
+
+
+def wifi_connect(timeout_ms=10000):
+    if secrets is None:
+        return False
+    try:
+        wlan.active(True)
+        if not wlan.isconnected():
+            wlan.connect(secrets.WIFI_SSID, secrets.WIFI_PASS)
+            t0 = time.ticks_ms()
+            while (not wlan.isconnected()
+                   and time.ticks_diff(time.ticks_ms(), t0) &lt; timeout_ms):
+                time.sleep_ms(200)
+        return wlan.isconnected()
+    except Exception as e:
+        print(&quot;WiFi error:&quot;, e)
+        return False
+
+
+def wifi_keepalive(now):
+    global next_wifi
+    if secrets is None or wlan.isconnected():
+        return
+    if time.ticks_diff(now, next_wifi) &gt;= 0:
+        next_wifi = time.ticks_add(now, WIFI_RETRY_MS)
+        try:
+            wlan.disconnect()
+            wlan.connect(secrets.WIFI_SSID, secrets.WIFI_PASS)
+        except Exception as e:
+            print(&quot;WiFi retry:&quot;, e)
+
+
+def ai_request(prompt):
+    if secrets is None or not wlan.isconnected():
+        raise AIError(&quot;NO_WIFI&quot;)
+    gc.collect()
+    body = {&quot;model&quot;: secrets.MODEL,
+            &quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt}],
+            &quot;max_tokens&quot;: 50, &quot;temperature&quot;: 0}
+    headers = {&quot;Content-Type&quot;: &quot;application/json&quot;,
+               &quot;Authorization&quot;: &quot;Bearer &quot; + secrets.API_KEY}
+    r = requests.post(secrets.API_URL, data=json.dumps(body).encode(),
+                      headers=headers, timeout=AI_TIMEOUT_S)
+    try:
+        if r.status_code != 200:
+            raise AIError(&quot;HTTP%d&quot; % r.status_code)
+        return r.json()[&quot;choices&quot;][0][&quot;message&quot;][&quot;content&quot;]
+    finally:
+        r.close()
+
+
+def ai_check():
+    log(&quot;AI_REQ&quot;)
+    try:
+        ai_request(&quot;Reply with one word: OK&quot;)
+        log(&quot;AI_ANS&quot;, &quot;OK&quot;)
+        return True
+    except Exception as e:
+        log(&quot;AI_ERR&quot;, e)
+        return False
+
+
+def pick_word(text, allowed):
+    t = text.upper()
+    found = [w for w in allowed if w in t]
+    return found[0] if len(found) == 1 else None
+
+
+def ai_risk():
+    &quot;&quot;&quot;Оценка риска по 10 последним записям журнала.&quot;&quot;&quot;
+    global risk, ai_wait_until
+    now = time.ticks_ms()
+    if time.ticks_diff(now, ai_wait_until) &lt; 0:
+        return                                 # лимит частоты запросов
+    log(&quot;AI_REQ&quot;)
+    try:
+        word = pick_word(ai_request(PROMPT.format(&quot;\n&quot;.join(access_log))),
+                         RISK_WORDS)
+        ai_wait_until = time.ticks_add(time.ticks_ms(), AI_MIN_GAP_MS)
+        if word is None:
+            log(&quot;AI_BAD&quot;)                      # оставляем прежний уровень
+            return
+        log(&quot;AI_ANS&quot;, word)
+        risk = word
+        if risk == &quot;HIGH&quot;:
+            log(&quot;ALERT&quot;)
+    except Exception as e:
+        log(&quot;AI_ERR&quot;, e)
+        risk = &quot;N/A&quot;
+        ai_wait_until = time.ticks_add(time.ticks_ms(), AI_RETRY_MS)
+
+
+# ---------------- Справочник и данные карты ----------------
+def load_users():
+    global users
+    try:
+        with open(USERS_FILE) as f:
+            users = json.load(f)
+    except Exception as e:
+        print(&quot;users.json error:&quot;, e)
+        users = {}
+
+
+def tag_hex(tag):
+    &quot;&quot;&quot;Тип карты 2 байта -&gt; &#x27;0x0400&#x27; (для S50). Драйвер может вернуть int или список.&quot;&quot;&quot;
+    if isinstance(tag, int):
+        return &quot;0x%04X&quot; % tag
+    return &quot;0x%02X%02X&quot; % (tag[0], tag[1])
+
+
+def uid_hex(uid):
+    &quot;&quot;&quot;Первые 4 байта -&gt; &#x27;UID&#x27; из 8 HEX-символов верхнего регистра.&quot;&quot;&quot;
+    return &quot;%02X%02X%02X%02X&quot; % (uid[0], uid[1], uid[2], uid[3])
+
+
+def name_to_block(name):
+    return (name + &quot; &quot; * 16)[:16].encode()      # дополняем пробелами до 16 байт
+
+
+def block_to_name(data):
+    try:
+        return data.decode().strip()
+    except Exception:
+        return None                              # мусор вместо текста
+
+
+def visits_to_block(n):
+    return n.to_bytes(4, &quot;big&quot;) + bytes(12)      # 4 байта числа + 12 нулей
+
+
+def block_to_visits(data):
+    return int.from_bytes(data[:4], &quot;big&quot;)
+
+
+# ---------------- Экран ----------------
+def screen(lines, inverse=False):
+    oled.fill(0)
+    for y, txt in lines:
+        oled.text(txt[:16], 0, y)
+    oled.invert(1 if inverse else 0)
+    oled.show()
+
+
+def idle_screen():
+    screen([(0, &quot;Access Control&quot;), (24, &quot;Place card&quot;), (48, &quot;Risk: &quot; + risk)],
+           inverse=(risk == &quot;HIGH&quot;))
+
+
+def start_screen():
+    screen([(0, &quot;IoT STATION &quot; + STATION)])
+    wifi_ok = wifi_connect()
+    ai_ok = wifi_ok and ai_check()
+    screen([(0, &quot;IoT STATION &quot; + STATION),
+            (24, &quot;WiFi: &quot; + (&quot;OK&quot; if wifi_ok else &quot;FAIL&quot;)),
+            (40, &quot;AI: &quot; + (&quot;READY&quot; if ai_ok else &quot;OFFLINE&quot;))])
+    time.sleep_ms(START_SCREEN_MS)
+
+
+# ---------------- Проверка доступа ----------------
+def journal(uid, name, result, visits):
+    line = &quot;%d,%s,%s,%s,%s&quot; % (time.ticks_ms(), uid, name, result, visits)
+    print(line)
+    access_log.append(line)
+    if len(access_log) &gt; LOG_N:
+        access_log.pop(0)
+
+
+def check_access(raw_uid):
+    &quot;&quot;&quot;Возвращает True, если была попытка прохода (нужен запрос к ИИ).&quot;&quot;&quot;
+    uid = uid_hex(raw_uid)
+    if uid not in users:
+        screen([(0, &quot;DENIED&quot;), (16, &quot;UID:&quot; + uid), (32, &quot;Unknown card&quot;)])
+        journal(uid, &quot;-&quot;, &quot;UNKNOWN&quot;, &quot;-&quot;)
+        return True
+    if not card_open(raw_uid):                 # ошибка выбора/авторизации
+        rfid.stop_crypto1()
+        return False
+    try:
+        name = block_to_name(card_read(BLOCK_NAME))
+        visits = block_to_visits(card_read(BLOCK_VISITS))
+        if name != users[uid]:
+            screen([(0, &quot;DENIED&quot;), (16, &quot;UID:&quot; + uid), (32, &quot;Data mismatch&quot;)])
+            journal(uid, &quot;-&quot;, &quot;MISMATCH&quot;, &quot;-&quot;)
+        else:
+            visits += 1
+            card_write(BLOCK_VISITS, visits_to_block(visits))
+            screen([(0, &quot;ACCESS OK&quot;), (16, &quot;UID:&quot; + uid),
+                    (32, &quot;Name:&quot; + name), (48, &quot;Visits: %d&quot; % visits)])
+            journal(uid, name, &quot;OK&quot;, visits)
+        return True
+    except Exception as e:
+        print(&quot;Card error:&quot;, e)
+        return False
+    finally:
+        rfid.stop_crypto1()
+
+
+# ---------------- Регистрация (вызывается из Shell) ----------------
+def register(name=None, timeout_s=30):
+    &quot;&quot;&quot;Ждёт карту, пишет имя в блок 8 и 0 в блок 9.&quot;&quot;&quot;
+    load_users()
+    print(&quot;Place card...&quot;)
+    t0 = time.ticks_ms()
+    while time.ticks_diff(time.ticks_ms(), t0) &lt; timeout_s * 1000:
+        found, tag = card_seek()
+        raw = card_uid() if found else None
+        if raw:
+            uid = uid_hex(raw)
+            who = name or users.get(uid)
+            if not who or len(who) &gt; NAME_MAX:
+                screen([(0, &quot;REGISTER&quot;), (16, &quot;UID:&quot; + uid), (48, &quot;WRITE ERROR&quot;)])
+                print(&quot;Name not found in users.json:&quot;, uid)
+                return False
+            screen([(0, &quot;REGISTER&quot;), (16, &quot;UID:&quot; + uid), (32, &quot;Write: &quot; + who)])
+            ok = False
+            try:
+                if card_open(raw):
+                    ok = (card_write(BLOCK_NAME, name_to_block(who)) and
+                          card_write(BLOCK_VISITS, visits_to_block(0)))
+            except Exception as e:
+                print(&quot;Write error:&quot;, e)
+            finally:
+                rfid.stop_crypto1()
+            screen([(0, &quot;REGISTER&quot;), (16, &quot;UID:&quot; + uid), (32, &quot;Write: &quot; + who),
+                    (48, &quot;WRITE OK&quot; if ok else &quot;WRITE ERROR&quot;)])
+            return ok
+        time.sleep_ms(POLL_MS)
+    print(&quot;No card&quot;)
+    return False
+
+
+# ---------------- Основной цикл ----------------
+def main():
+    global last_uid, last_uid_ms
+    load_users()
+    start_screen()
+    idle_screen()
+    while True:
+        try:
+            now = time.ticks_ms()
+            wifi_keepalive(now)
+            found, tag = card_seek()
+            if found:
+                print(&quot;tag type: &quot; + tag_hex(tag))
+                raw = card_uid()
+                if raw:
+                    uid = uid_hex(raw)
+                    same = (uid == last_uid and
+                            time.ticks_diff(now, last_uid_ms) &lt; SAME_CARD_MS)
+                    if not same:
+                        attempt = check_access(raw)
+                        last_uid, last_uid_ms = uid, time.ticks_ms()
+                        time.sleep_ms(RESULT_MS)   # результат держится 2 с
+                        idle_screen()
+                        if attempt:
+                            ai_risk()              # после показа результата
+                            idle_screen()
+        except Exception as e:
+            print(&quot;ERR:&quot;, e)
+        time.sleep_ms(POLL_MS)
+
+
+main()
+</pre></div></details>
+  </article>
+
+  <!-- ---------- C1 ---------- -->
+  <article class="mod" id="m-c1" hidden>
+    <h2>C1 · ИИ-камера распознавания объектов</h2>
+    <p class="prose">Самый сложный модуль: две программы на двух устройствах. AI-модуль A01-AI видит объект нейросетью и шлёт по UART строку <code>OBJ,bottle,87</code>. ESP32 проверяет строку, ждёт 3 одинаковых подряд, показывает объект на OLED и узнаёт у ИИ-сервиса тип объекта, запоминая ответ в кэше.</p>
+    <pre class="mermaid">
+flowchart LR
+  K["A01-AI: камера + YOLO на KPU, LCD"] -- "OBJ,класс,% / NONE (IO6 → GPIO16)" --> E[ESP32]
+  E -- "ACK (GPIO17 → IO7)" --> K
+  E -- I2C 0x3C --> O[OLED SSD1306]
+  E -- HTTPS --> L[ИИ-сервис: тип объекта]
+    </pre>
+    <div class="screens">
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="AI CAMERA / Obj: dog / Conf: 74% / Type: ..."><span style="top:calc(0 * var(--px))">AI CAMERA</span><span style="top:calc(16 * var(--px))">Obj: dog</span><span style="top:calc(32 * var(--px))">Conf: 74%</span><span style="top:calc(48 * var(--px))">Type: ...</span></div></div><figcaption>Ждём ответ ИИ</figcaption></figure>
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="AI CAMERA / Obj: bottle / Conf: 87% / Type: HOME"><span style="top:calc(0 * var(--px))">AI CAMERA</span><span style="top:calc(16 * var(--px))">Obj: bottle</span><span style="top:calc(32 * var(--px))">Conf: 87%</span><span style="top:calc(48 * var(--px))">Type: HOME</span></div></div><figcaption>Объект распознан</figcaption></figure>
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="AI CAMERA / No object"><span style="top:calc(0 * var(--px))">AI CAMERA</span><span style="top:calc(24 * var(--px))">No object</span></div></div><figcaption>Сообщение NONE</figcaption></figure>
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="AI CAMERA / LINK LOST"><span style="top:calc(0 * var(--px))">AI CAMERA</span><span style="top:calc(24 * var(--px))">LINK LOST</span></div></div><figcaption>Нет сообщений &gt; 3 с</figcaption></figure>
+    </div>
+    <h3>Протокол обмена</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Направление</th><th>Сообщение</th><th>Когда</th></tr></thead>
+      <tbody>
+        <tr><td>A01-AI → ESP32</td><td><code>OBJ,&lt;класс&gt;,&lt;уверенность_%&gt;\n</code></td><td>при распознавании, не чаще 5 раз/с</td></tr>
+        <tr><td>A01-AI → ESP32</td><td><code>NONE\n</code></td><td>раз в секунду, если объектов нет</td></tr>
+        <tr><td>ESP32 → A01-AI</td><td><code>ACK\n</code></td><td>после обработки каждого OBJ; нет ACK &gt;2 с → на LCD «NO LINK», иначе «LINK OK»</td></tr>
+      </tbody>
+    </table></div>
+    <h3>Чек-лист проверки</h3>
+    <ul class="check">
+      <li>Провода: «7 6» модуля ↔ «16 17» IO Shield, TX → RX крест-накрест, общий GND. UART 115200, 8N1.</li>
+      <li>LCD: камера QVGA 320×240 в реальном времени, <code>FPS: N</code> жёлтым слева сверху.</li>
+      <li>Модель и 20 классов от экспертов, порог уверенности 0,5 (константа); красная рамка и подпись <code>bottle 0.87</code>; передаётся самый уверенный объект.</li>
+      <li>ESP32 принимает по UART2, проверяет класс по списку и 0…100 %, мусор игнорирует без падения.</li>
+      <li>OLED: <code>AI CAMERA</code>, <code>Obj: класс</code>, <code>Conf: N%</code>, <code>Type: тип</code>; длинное обрезать до 16 символов; NONE → <code>No object</code> (y=24).</li>
+      <li>Новый объект — только после 3 одинаковых сообщений подряд.</li>
+      <li>Нет сообщений &gt;3 с → <code>LINK LOST</code> (y=24); связь вернулась → работа сама продолжается.</li>
+      <li>Новый подтверждённый класс без кэша → ИИ → HUMAN / ANIMAL / TRANSPORT / HOME; кэш-словарь; <code>Type: ...</code> во время запроса; <code>Type: ?</code> при ошибке (без записи в кэш).</li>
+      <li>Во время запроса строки UART не теряются (буфер приёма).</li>
+      <li>Журнал: <code>мс,класс,уверенность,тип</code>; раз в 30 с <code>STAT,person:5,bottle:2</code> (только ненулевые).</li>
+      <li>Сдать: <code>ai_cam.py</code>, <code>main.py</code>, <code>secrets_example.py</code>; обе программы стартуют сами.</li>
+    </ul>
+    <h3>Ловушки</h3>
+    <div class="trap"><b>TX в TX</b><p>Самая частая ошибка UART — провода не перекрещены или разная скорость. Симптом: тишина или мусор в приёме.</p></div>
+    <div class="trap"><b>Строка приходит кусками</b><p><code>uart.read()</code> может вернуть половину строки. Копим байты до <code>\n</code> и только потом разбираем.</p></div>
+    <div class="trap"><b>Буфер на время запроса</b><p>За 10 с запроса придёт до ~50 строк × 16 байт ≈ 800 байт. Нужен <code>rxbuf</code> 1–4 КБ, иначе строки потеряются.</p></div>
+    <div class="trap"><b>Автозапуск на A01-AI</b><p>В репозитории файл называется <code>ai_cam.py</code>, а на модуле он должен лежать как <code>main.py</code> (или как требует прошивка) — иначе после перезагрузки камера молчит.</p></div>
+    <details class="code"><summary>Эталонный код: C1/main.py (ESP32) <small>321 строк · IIoT/C1/main.py</small></summary><div class="codebox"><button class="copy" type="button">Копировать</button><pre class="py"># =====================================================================
+#  WSKZ2026 IIoT — Модуль C1. ИИ-камера распознавания объектов (ESP32)
+#  A01-AI --UART2 115200 8N1--&gt; ESP32 --I2C--&gt; OLED,  ESP32 --HTTPS--&gt; ИИ
+#  Протокол: &quot;OBJ,&lt;класс&gt;,&lt;уверенность_%&gt;\n&quot; | &quot;NONE\n&quot;;  ответ ESP32: &quot;ACK\n&quot;
+# =====================================================================
+import time
+import json
+import gc
+import network
+from machine import Pin, SoftI2C, UART
+import ssd1306
+
+try:
+    import requests
+except ImportError:
+    import urequests as requests
+
+try:
+    import secrets
+except ImportError:
+    secrets = None
+
+# ---------------- Константы ----------------
+STATION = &quot;XX&quot;
+PIN_SDA = 23
+PIN_SCL = 19
+PIN_RX = 16               # &lt;- TX A01-AI (IO6)
+PIN_TX = 17               # -&gt; RX A01-AI (IO7)
+UART_ID = 2
+BAUD = 115200
+RX_BUF = 4096             # буфер приёма: строки не теряются во время запроса к ИИ
+
+CONFIRM_N = 3             # новый объект — после 3 одинаковых сообщений подряд
+LINK_TIMEOUT_MS = 3000    # нет сообщений &gt; 3 с -&gt; LINK LOST
+STAT_MS = 30000           # статистика раз в 30 с
+CLASSES = (&quot;aeroplane&quot;, &quot;bicycle&quot;, &quot;bird&quot;, &quot;boat&quot;, &quot;bottle&quot;, &quot;bus&quot;, &quot;car&quot;,
+           &quot;cat&quot;, &quot;chair&quot;, &quot;cow&quot;, &quot;diningtable&quot;, &quot;dog&quot;, &quot;horse&quot;, &quot;motorbike&quot;,
+           &quot;person&quot;, &quot;pottedplant&quot;, &quot;sheep&quot;, &quot;sofa&quot;, &quot;train&quot;, &quot;tvmonitor&quot;)
+                          # СВЕРИТЬ со списком 20 классов от экспертов
+
+AI_TIMEOUT_S = 10
+AI_MIN_GAP_MS = 5000
+AI_RETRY_MS = 10000
+WIFI_RETRY_MS = 10000
+START_SCREEN_MS = 2000
+TYPES = (&quot;HUMAN&quot;, &quot;ANIMAL&quot;, &quot;TRANSPORT&quot;, &quot;HOME&quot;)
+PROMPT = (&quot;A camera detected an object of class &#x27;{}&#x27;. Classify it as one of: &quot;
+          &quot;HUMAN, ANIMAL, TRANSPORT, HOME. Reply with exactly one word.&quot;)
+
+# ---------------- Оборудование ----------------
+i2c = SoftI2C(scl=Pin(PIN_SCL), sda=Pin(PIN_SDA))
+oled = ssd1306.SSD1306_I2C(128, 64, i2c)
+uart = UART(UART_ID, baudrate=BAUD, bits=8, parity=None, stop=1,
+            tx=PIN_TX, rx=PIN_RX, rxbuf=RX_BUF)
+wlan = network.WLAN(network.STA_IF)
+
+# ---------------- Состояние ----------------
+rx = b&quot;&quot;                  # накопитель байтов до символа \n
+cand = None               # класс-кандидат и длина серии
+cand_n = 0
+shown = None              # подтверждённый класс на экране
+shown_conf = 0
+shown_type = &quot;?&quot;
+no_object = True
+link_lost = False
+last_rx_ms = 0
+type_cache = {}           # класс -&gt; тип (кэш ответов ИИ)
+pending = None            # (класс, уверенность) — ждёт ответа ИИ
+counts = {}               # класс -&gt; число подтверждений
+ai_wait_until = 0
+dirty = True              # экран нужно перерисовать
+next_stat = 0
+next_wifi = 0
+
+
+def log(*parts):
+    print(&quot;,&quot;.join([str(time.ticks_ms())] + [str(p) for p in parts]))
+
+
+# ---------------- Wi-Fi и ИИ ----------------
+class AIError(Exception):
+    pass
+
+
+def wifi_connect(timeout_ms=10000):
+    if secrets is None:
+        return False
+    try:
+        wlan.active(True)
+        if not wlan.isconnected():
+            wlan.connect(secrets.WIFI_SSID, secrets.WIFI_PASS)
+            t0 = time.ticks_ms()
+            while (not wlan.isconnected()
+                   and time.ticks_diff(time.ticks_ms(), t0) &lt; timeout_ms):
+                time.sleep_ms(200)
+        return wlan.isconnected()
+    except Exception as e:
+        print(&quot;WiFi error:&quot;, e)
+        return False
+
+
+def wifi_keepalive(now):
+    global next_wifi
+    if secrets is None or wlan.isconnected():
+        return
+    if time.ticks_diff(now, next_wifi) &gt;= 0:
+        next_wifi = time.ticks_add(now, WIFI_RETRY_MS)
+        try:
+            wlan.disconnect()
+            wlan.connect(secrets.WIFI_SSID, secrets.WIFI_PASS)
+        except Exception as e:
+            print(&quot;WiFi retry:&quot;, e)
+
+
+def ai_request(prompt):
+    if secrets is None or not wlan.isconnected():
+        raise AIError(&quot;NO_WIFI&quot;)
+    gc.collect()
+    body = {&quot;model&quot;: secrets.MODEL,
+            &quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt}],
+            &quot;max_tokens&quot;: 50, &quot;temperature&quot;: 0}
+    headers = {&quot;Content-Type&quot;: &quot;application/json&quot;,
+               &quot;Authorization&quot;: &quot;Bearer &quot; + secrets.API_KEY}
+    r = requests.post(secrets.API_URL, data=json.dumps(body).encode(),
+                      headers=headers, timeout=AI_TIMEOUT_S)
+    try:
+        if r.status_code != 200:
+            raise AIError(&quot;HTTP%d&quot; % r.status_code)
+        return r.json()[&quot;choices&quot;][0][&quot;message&quot;][&quot;content&quot;]
+    finally:
+        r.close()
+
+
+def ai_check():
+    log(&quot;AI_REQ&quot;)
+    try:
+        ai_request(&quot;Reply with one word: OK&quot;)
+        log(&quot;AI_ANS&quot;, &quot;OK&quot;)
+        return True
+    except Exception as e:
+        log(&quot;AI_ERR&quot;, e)
+        return False
+
+
+def pick_word(text, allowed):
+    t = text.upper()
+    found = [w for w in allowed if w in t]
+    return found[0] if len(found) == 1 else None
+
+
+def ai_step(now):
+    &quot;&quot;&quot;Запрос типа для подтверждённого класса, которого нет в кэше.&quot;&quot;&quot;
+    global pending, shown_type, ai_wait_until
+    if pending is None or time.ticks_diff(now, ai_wait_until) &lt; 0:
+        return
+    cls, conf = pending
+    log(&quot;AI_REQ&quot;)
+    try:
+        word = pick_word(ai_request(PROMPT.format(cls)), TYPES)
+        ai_wait_until = time.ticks_add(time.ticks_ms(), AI_MIN_GAP_MS)
+        if word is None:
+            log(&quot;AI_BAD&quot;)
+            typ = &quot;?&quot;
+        else:
+            log(&quot;AI_ANS&quot;, word)
+            type_cache[cls] = word             # в кэш — только допустимый тип
+            typ = word
+    except Exception as e:
+        log(&quot;AI_ERR&quot;, e)
+        ai_wait_until = time.ticks_add(time.ticks_ms(), AI_RETRY_MS)
+        typ = &quot;?&quot;
+    pending = None
+    log(cls, conf, typ)                        # журнал подтверждённого объекта
+    if shown == cls:
+        shown_type = typ
+        mark()
+
+
+# ---------------- Экран ----------------
+def mark():
+    &quot;&quot;&quot;Перерисовать экран один раз в конце итерации, а не на каждую строку.&quot;&quot;&quot;
+    global dirty
+    dirty = True
+
+
+def draw():
+    oled.fill(0)
+    oled.text(&quot;AI CAMERA&quot;, 0, 0)
+    if link_lost:
+        oled.text(&quot;LINK LOST&quot;, 0, 24)
+    elif no_object or shown is None:
+        oled.text(&quot;No object&quot;, 0, 24)
+    else:
+        oled.text((&quot;Obj: &quot; + shown)[:16], 0, 16)
+        oled.text(&quot;Conf: %d%%&quot; % shown_conf, 0, 32)
+        oled.text(&quot;Type: &quot; + shown_type, 0, 48)
+    oled.show()
+
+
+def start_screen():
+    oled.fill(0)
+    oled.text(&quot;IoT STATION &quot; + STATION, 0, 0)
+    oled.show()
+    wifi_ok = wifi_connect()
+    ai_ok = wifi_ok and ai_check()
+    oled.text(&quot;WiFi: &quot; + (&quot;OK&quot; if wifi_ok else &quot;FAIL&quot;), 0, 24)
+    oled.text(&quot;AI: &quot; + (&quot;READY&quot; if ai_ok else &quot;OFFLINE&quot;), 0, 40)
+    oled.show()
+    time.sleep_ms(START_SCREEN_MS)
+
+
+# ---------------- Разбор протокола ----------------
+def parse(line):
+    &quot;&quot;&quot;-&gt; (&quot;NONE&quot;,) | (&quot;OBJ&quot;, класс, conf) | None для некорректной строки.&quot;&quot;&quot;
+    try:
+        s = line.decode().strip()
+    except Exception:
+        return None
+    if s == &quot;NONE&quot;:
+        return (&quot;NONE&quot;,)
+    p = s.split(&quot;,&quot;)
+    if len(p) != 3 or p[0] != &quot;OBJ&quot; or p[1] not in CLASSES:
+        return None
+    try:
+        conf = int(p[2])
+    except ValueError:
+        return None
+    if not 0 &lt;= conf &lt;= 100:
+        return None
+    return (&quot;OBJ&quot;, p[1], conf)
+
+
+def confirm(cls, conf):
+    &quot;&quot;&quot;Объект подтверждён (3 сообщения подряд).&quot;&quot;&quot;
+    global shown, shown_conf, shown_type, pending
+    shown, shown_conf = cls, conf
+    counts[cls] = counts.get(cls, 0) + 1
+    if cls in type_cache:
+        shown_type = type_cache[cls]
+        log(cls, conf, shown_type)
+    else:
+        if pending is not None:                # предыдущий так и не дождался ИИ
+            log(pending[0], pending[1], &quot;?&quot;)
+        pending = (cls, conf)
+        shown_type = &quot;...&quot;
+
+
+def handle(msg):
+    global cand, cand_n, shown_conf, no_object
+    if msg[0] == &quot;NONE&quot;:
+        cand, cand_n = None, 0
+        no_object = True
+        mark()
+        return
+    _, cls, conf = msg
+    uart.write(b&quot;ACK\n&quot;)                       # подтверждаем каждое сообщение OBJ
+    if cls == cand:
+        cand_n += 1
+    else:
+        cand, cand_n = cls, 1
+    if cand_n == CONFIRM_N:
+        no_object = False
+        confirm(cls, conf)
+        mark()
+    elif cand_n &gt; CONFIRM_N and cls == shown:
+        shown_conf = conf                      # тот же объект — обновляем %
+        mark()
+
+
+def read_uart(now):
+    global rx, last_rx_ms, link_lost
+    n = uart.any()
+    if not n:
+        return
+    rx += uart.read(n)
+    while b&quot;\n&quot; in rx:
+        line, rx = rx.split(b&quot;\n&quot;, 1)
+        last_rx_ms = now
+        if link_lost:                          # связь восстановилась
+            link_lost = False
+            mark()
+        msg = parse(line)
+        if msg:
+            handle(msg)                        # некорректные строки игнорируем
+    if len(rx) &gt; 256:                          # мусор без \n — сбрасываем
+        rx = b&quot;&quot;
+
+
+def print_stat():
+    items = [&quot;%s:%d&quot; % (k, v) for k, v in counts.items() if v &gt; 0]
+    print(&quot;,&quot;.join([&quot;STAT&quot;] + items))
+
+
+def main():
+    global last_rx_ms, link_lost, next_stat, dirty
+    start_screen()
+    draw()
+    last_rx_ms = time.ticks_ms()
+    next_stat = time.ticks_add(last_rx_ms, STAT_MS)
+    while True:
+        try:
+            now = time.ticks_ms()
+            read_uart(now)
+            if (not link_lost and
+                    time.ticks_diff(now, last_rx_ms) &gt; LINK_TIMEOUT_MS):
+                link_lost = True
+                mark()
+            if time.ticks_diff(now, next_stat) &gt;= 0:
+                next_stat = time.ticks_add(now, STAT_MS)
+                print_stat()
+            if dirty:                          # сначала показать &quot;Type: ...&quot;
+                draw()
+                dirty = False
+            wifi_keepalive(now)
+            ai_step(now)                       # пока ждём ИИ, UART копит строки
+        except Exception as e:
+            print(&quot;ERR:&quot;, e)
+        time.sleep_ms(10)
+
+
+main()
+</pre></div></details>
+    <details class="code"><summary>Эталонный код: C1/ai_cam.py (A01-AI, MaixPy) <small>91 строк · IIoT/C1/ai_cam.py</small></summary><div class="codebox"><button class="copy" type="button">Копировать</button><pre class="py"># =====================================================================
+#  WSKZ2026 IIoT — Модуль C1. Программа AI-модуля A01-AI
+#  Написано под MaixPy (чип Kendryte K210: KPU, sensor, lcd, fpioa).
+#  СВЕРИТЬ на С-1: прошивку модуля, путь к модели, якоря (anchors),
+#  список классов. На модуль сохранить как main.py (автозапуск).
+# =====================================================================
+import sensor
+import lcd
+import time
+import KPU as kpu
+from machine import UART
+from fpioa_manager import fm
+
+# ---------------- Константы ----------------
+MODEL_PATH = &quot;/sd/20class.kmodel&quot;   # или адрес во флеше, напр. 0x500000
+CONF_MIN = 0.5                      # порог уверенности
+NMS = 0.3
+ANCHORS = (1.08, 1.19, 3.42, 4.41, 6.63, 11.38, 9.42, 5.11, 16.62, 10.52)
+CLASSES = (&quot;aeroplane&quot;, &quot;bicycle&quot;, &quot;bird&quot;, &quot;boat&quot;, &quot;bottle&quot;, &quot;bus&quot;, &quot;car&quot;,
+           &quot;cat&quot;, &quot;chair&quot;, &quot;cow&quot;, &quot;diningtable&quot;, &quot;dog&quot;, &quot;horse&quot;, &quot;motorbike&quot;,
+           &quot;person&quot;, &quot;pottedplant&quot;, &quot;sheep&quot;, &quot;sofa&quot;, &quot;train&quot;, &quot;tvmonitor&quot;)
+PIN_TX = 6                          # IO6 -&gt; RX ESP32 (GPIO16)
+PIN_RX = 7                          # IO7 &lt;- TX ESP32 (GPIO17)
+BAUD = 115200
+OBJ_GAP_MS = 200                    # OBJ не чаще 5 раз в секунду
+NONE_GAP_MS = 1000                  # NONE раз в секунду
+ACK_TIMEOUT_MS = 2000               # нет ACK &gt; 2 с -&gt; NO LINK
+LCD_W = 320
+CHAR_W = 16                         # ширина символа при scale=2 (СВЕРИТЬ)
+RED = (255, 0, 0)
+YELLOW = (255, 255, 0)
+GREEN = (0, 255, 0)
+
+# ---------------- UART: назначаем выводы через FPIOA ----------------
+fm.register(PIN_TX, fm.fpioa.UART1_TX, force=True)
+fm.register(PIN_RX, fm.fpioa.UART1_RX, force=True)
+uart = UART(UART.UART1, BAUD, 8, None, 1, timeout=10, read_buf_len=1024)
+
+# ---------------- Камера, экран, модель ----------------
+lcd.init()
+sensor.reset()
+sensor.set_pixformat(sensor.RGB565)
+sensor.set_framesize(sensor.QVGA)   # 320x240
+sensor.run(1)
+task = kpu.load(MODEL_PATH)
+kpu.init_yolo2(task, CONF_MIN, NMS, 5, ANCHORS)   # 5 = число якорей
+clock = time.clock()
+
+last_obj = 0
+last_none = 0
+last_ack = -ACK_TIMEOUT_MS
+rx = b&quot;&quot;
+
+while True:
+    clock.tick()
+    img = sensor.snapshot()
+    objs = kpu.run_yolo2(task, img)
+    best = None
+    if objs:
+        for o in objs:
+            if o.value() &lt; CONF_MIN:
+                continue
+            label = &quot;%s %.2f&quot; % (CLASSES[o.classid()], o.value())
+            img.draw_rectangle(o.rect(), color=RED, thickness=2)
+            img.draw_string(o.x(), max(0, o.y() - 20), label, color=RED, scale=2)
+            if best is None or o.value() &gt; best.value():
+                best = o                     # передаём самый уверенный объект
+
+    now = time.ticks_ms()
+    if best is not None:
+        if time.ticks_diff(now, last_obj) &gt;= OBJ_GAP_MS:
+            pct = int(best.value() * 100 + 0.5)
+            uart.write(&quot;OBJ,%s,%d\n&quot; % (CLASSES[best.classid()], pct))
+            last_obj = now
+    elif time.ticks_diff(now, last_none) &gt;= NONE_GAP_MS:
+        uart.write(&quot;NONE\n&quot;)
+        last_none = now
+
+    if uart.any():                           # ищем ACK от ESP32
+        data = uart.read()
+        if data:
+            rx = (rx + data)[-32:]
+            if b&quot;ACK\n&quot; in rx:
+                last_ack = now
+                rx = b&quot;&quot;
+
+    link = &quot;LINK OK&quot; if time.ticks_diff(now, last_ack) &lt;= ACK_TIMEOUT_MS else &quot;NO LINK&quot;
+    img.draw_string(2, 2, &quot;FPS: %d&quot; % clock.fps(), color=YELLOW, scale=2)
+    img.draw_string(LCD_W - len(link) * CHAR_W - 2, 2, link,
+                    color=GREEN if link == &quot;LINK OK&quot; else RED, scale=2)
+    lcd.display(img)
+</pre></div></details>
+  </article>
+
+  <!-- ---------- MA ---------- -->
+  <article class="mod" id="m-ma" hidden>
+    <h2>MA / MA1 · Парктроник (AI-IoT)</h2>
+    <p class="prose">Тот же HC-SR04, но без интернета, зато со светом и звуком. В MA — 3 части по часу: A1 дальномер → A2 зоны со светодиодами и зуммером → A3 медиана, шкала, журнал. В MA1 всё это — одна часть A1 за час, а A2 «Датчики среды теплицы» и A3 «Вывод данных на AI-модуль» объявят перед стартом.</p>
+    <div class="screens">
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="HCSR04 / Dist: 47.3 cm"><span style="top:calc(0 * var(--px))">HCSR04</span><span style="top:calc(16 * var(--px))">Dist: 47.3 cm</span></div></div><figcaption>A1: расстояние</figcaption></figure>
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="HCSR04 / Dist: 34.5 cm / ZONE: WARN"><span style="top:calc(0 * var(--px))">HCSR04</span><span style="top:calc(16 * var(--px))">Dist: 34.5 cm</span><span style="top:calc(32 * var(--px))">ZONE: WARN</span><div class="bar" style="top:calc(50 * var(--px))"><i style="width:calc(79 * var(--px))"></i></div></div></div><figcaption>WARN, жёлтый, пищит</figcaption></figure>
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="HCSR04 / Dist: 12.0 cm / ZONE: STOP"><span style="top:calc(0 * var(--px))">HCSR04</span><span style="top:calc(16 * var(--px))">Dist: 12.0 cm</span><span style="top:calc(32 * var(--px))">ZONE: STOP</span><div class="bar" style="top:calc(50 * var(--px))"><i style="width:calc(107 * var(--px))"></i></div></div></div><figcaption>STOP, красный, непрерывно</figcaption></figure>
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="HCSR04 / OUT OF RANGE"><span style="top:calc(0 * var(--px))">HCSR04</span><span style="top:calc(24 * var(--px))">OUT OF RANGE</span></div></div><figcaption>Вне диапазона</figcaption></figure>
+    </div>
+    <div class="tbl"><table>
+      <thead><tr><th>Зона</th><th>Расстояние</th><th>WS2812 (все 4)</th><th>Зуммер</th></tr></thead>
+      <tbody>
+        <tr><td><code>ZONE: SAFE</code></td><td>&gt; 50 см</td><td>зелёный</td><td>выключен</td></tr>
+        <tr><td><code>ZONE: WARN</code></td><td>20…50 см</td><td>жёлтый</td><td>200 мс звук / 600 мс пауза</td></tr>
+        <tr><td><code>ZONE: STOP</code></td><td>&lt; 20 см</td><td>красный</td><td>непрерывно</td></tr>
+        <tr><td>OUT OF RANGE</td><td>&lt;2, &gt;400, ошибка</td><td>выключены</td><td>выключен</td></tr>
+      </tbody>
+    </table></div>
+    <h3>Чек-лист проверки</h3>
+    <ul class="check">
+      <li>A1: <code>HCSR04</code> y=0, <code>Dist: XX.X cm</code> y=<b>16</b>, каждые 200 мс по таймеру, экран очищается; OUT OF RANGE на y=24 и само возвращается.</li>
+      <li>A2: пины WS2812 и зуммера объявляет эксперт; при запуске все 4 диода красный → зелёный → синий по 0,5 с, потом гаснут.</li>
+      <li>A2: <code>ZONE: …</code> на y=32 (заглавными, в отличие от IIoT A1); при OUT строки зоны нет, свет и звук выключены; при переходе в SAFE зуммер гаснет в течение 200 мс.</li>
+      <li>A3: медиана 5, OUT не добавляется; шкала x=0, y=<b>50</b>, 122×10; журнал <code>15230,34.5,WARN</code> / <code>15630,-1,OUT</code>.</li>
+      <li>Каждая часть — своя папка на рабочем столе: <code>XX_MA1</code>, <code>XX_MA2</code>, <code>XX_MA3</code>. Не успел часть — эксперт выдаст базовую программу, но баллы за неё не начислят.</li>
+    </ul>
+    <div class="note info">
+      <b>Как готовиться к неизвестным частям MA1</b>
+      <p>«Датчики среды теплицы» — скорее всего температура/влажность (DHT11/DHT22: <code>import dht; d = dht.DHT11(Pin(x)); d.measure(); d.temperature()</code>), освещённость или влажность почвы через АЦП. «Вывод на AI-модуль» — скорее всего передача строк по UART на A01-AI и вывод на его LCD. Это догадки: тренируйте UART и АЦП, они закрывают оба варианта.</p>
+    </div>
+    <details class="code"><summary>Эталонный код: MA/main.py (итог A1+A2+A3) <small>167 строк · AI-IoT/MA/main.py</small></summary><div class="codebox"><button class="copy" type="button">Копировать</button><pre class="py"># =====================================================================
+#  WSKZ2026 AI-IoT — Модуль A (части A1+A2+A3). Парктроник
+#  ESP32 + HC-SR04 + OLED + WS2812 (4 LED) + зуммер BEEP
+#  A1: дальномер, OUT OF RANGE   A2: зоны, свет, звук   A3: медиана, шкала, журнал
+# =====================================================================
+import time
+from machine import Pin, SoftI2C, Timer
+from neopixel import NeoPixel
+import ssd1306
+from HCSR04 import HCSR04
+
+# ---------------- Константы ----------------
+PIN_TRIG = 14
+PIN_ECHO = 12
+PIN_SDA = 23
+PIN_SCL = 19
+PIN_RGB = 25              # ОБЪЯВЛЯЕТ ЭКСПЕРТ
+PIN_BEEP = 26             # ОБЪЯВЛЯЕТ ЭКСПЕРТ
+BEEP_ON = 1               # уровень включения зуммера (у некоторых модулей 0!)
+LED_N = 4
+
+MEASURE_MS = 200
+DIST_MIN = 2
+DIST_MAX = 400
+ZONE_STOP = 20            # &lt; 20 см  -&gt; STOP
+ZONE_SAFE = 50            # &gt; 50 см  -&gt; SAFE, иначе WARN
+FILTER_N = 5
+
+BAR_X = 0
+BAR_Y = 50
+BAR_W = 122
+BAR_H = 10
+BAR_RANGE = 100
+
+BEEP_ON_MS = 200          # WARN: 200 мс звук
+BEEP_PERIOD_MS = 800      #       + 600 мс пауза
+
+BRIGHT = 60               # яркость светодиодов 0..255
+COLORS = {&quot;SAFE&quot;: (0, BRIGHT, 0),          # зелёный
+          &quot;WARN&quot;: (BRIGHT, BRIGHT, 0),     # жёлтый
+          &quot;STOP&quot;: (BRIGHT, 0, 0)}          # красный
+OFF = (0, 0, 0)
+
+# ---------------- Оборудование ----------------
+i2c = SoftI2C(scl=Pin(PIN_SCL), sda=Pin(PIN_SDA))
+oled = ssd1306.SSD1306_I2C(128, 64, i2c)
+sensor = HCSR04(PIN_TRIG, PIN_ECHO)
+np = NeoPixel(Pin(PIN_RGB), LED_N)
+beep = Pin(PIN_BEEP, Pin.OUT, value=1 - BEEP_ON)   # сразу выключен
+
+# ---------------- Состояние ----------------
+buf = []
+dist = None
+zone = None               # None = OUT OF RANGE
+zone_since = 0
+tick = False
+
+
+def set_leds(color):
+    for i in range(LED_N):
+        np[i] = color
+    np.write()
+
+
+def set_beep(on):
+    beep.value(BEEP_ON if on else 1 - BEEP_ON)
+
+
+def led_test():
+    &quot;&quot;&quot;A2: при запуске все 4 LED: красный, зелёный, синий по 0.5 с, затем гаснут.&quot;&quot;&quot;
+    for c in ((BRIGHT, 0, 0), (0, BRIGHT, 0), (0, 0, BRIGHT)):
+        set_leds(c)
+        time.sleep_ms(500)
+    set_leds(OFF)
+
+
+def read_cm():
+    try:
+        d = sensor.distance_cm()   # СВЕРИТЬ имя метода с HCSR04.py
+    except Exception:
+        return None
+    if d is None or d &lt; DIST_MIN or d &gt; DIST_MAX:
+        return None
+    return d
+
+
+def median(values):
+    s = sorted(values)
+    n = len(s)
+    return s[n // 2] if n % 2 else (s[n // 2 - 1] + s[n // 2]) / 2
+
+
+def zone_of(d):
+    if d &lt; ZONE_STOP:
+        return &quot;STOP&quot;
+    if d &lt;= ZONE_SAFE:
+        return &quot;WARN&quot;
+    return &quot;SAFE&quot;
+
+
+def draw():
+    oled.fill(0)
+    oled.text(&quot;HCSR04&quot;, 0, 0)
+    if zone is None:
+        oled.text(&quot;OUT OF RANGE&quot;, 0, 24)
+    else:
+        oled.text(&quot;Dist: %.1f cm&quot; % dist, 0, 16)
+        oled.text(&quot;ZONE: &quot; + zone, 0, 32)
+        fill = int(BAR_W * (BAR_RANGE - min(dist, BAR_RANGE)) / BAR_RANGE)
+        oled.rect(BAR_X, BAR_Y, BAR_W, BAR_H, 1)
+        oled.fill_rect(BAR_X, BAR_Y, fill, BAR_H, 1)
+    oled.show()
+
+
+def measure():
+    global dist, zone, zone_since
+    d = read_cm()
+    old = zone
+    if d is None:
+        zone = None
+        print(&quot;%d,-1,OUT&quot; % time.ticks_ms())
+    else:
+        buf.append(d)
+        if len(buf) &gt; FILTER_N:
+            buf.pop(0)
+        dist = median(buf)                  # всё дальше — по медиане
+        zone = zone_of(dist)
+        print(&quot;%d,%.1f,%s&quot; % (time.ticks_ms(), dist, zone))
+    if zone != old:
+        zone_since = time.ticks_ms()
+        set_leds(COLORS[zone] if zone else OFF)
+    draw()
+
+
+def update_beep(now):
+    if zone == &quot;STOP&quot;:
+        set_beep(True)                      # непрерывный
+    elif zone == &quot;WARN&quot;:
+        phase = time.ticks_diff(now, zone_since) % BEEP_PERIOD_MS
+        set_beep(phase &lt; BEEP_ON_MS)        # 200 мс звук / 600 мс пауза
+    else:
+        set_beep(False)                     # SAFE и OUT OF RANGE
+
+
+def on_timer(t):
+    global tick
+    tick = True
+
+
+def main():
+    global tick
+    set_beep(False)
+    led_test()
+    timer = Timer(0)
+    timer.init(period=MEASURE_MS, mode=Timer.PERIODIC, callback=on_timer)
+    while True:
+        try:
+            if tick:
+                tick = False
+                measure()
+            update_beep(time.ticks_ms())
+        except Exception as e:
+            print(&quot;ERR:&quot;, e)
+        time.sleep_ms(10)
+
+
+main()
+</pre></div></details>
+  </article>
+
+  <!-- ---------- MB ---------- -->
+  <article class="mod" id="m-mb" hidden>
+    <h2>MB · RFID-пропуска (AI-IoT)</h2>
+    <p class="prose">Чистая работа с драйвером <code>rc522.py</code> по шагам. B1: найти карту. B2: прочитать номер и выбрать карту. B3: авторизоваться, записать 16 байт в блок 8 и прочитать их обратно. Проверяют в основном вывод консоли — он должен совпасть с примером.</p>
+    <div class="screens">
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="NO_CARD"><span style="top:calc(0 * var(--px))">NO_CARD</span></div></div><figcaption>Карты нет</figcaption></figure>
+      <figure class="oled-fig"><div class="oled-frame"><div class="oled" role="img" aria-label="READ OK"><span style="top:calc(0 * var(--px))">READ OK</span></div></div><figcaption>Блок 8 прочитан</figcaption></figure>
+    </div>
+    <div class="grid2">
+      <div class="console">NO_CARD
+tag type: 0x0400
+card_id= [154, 63, 18, 196, 115]
+Address 8 data: [1, 1, 2, 3, 4, 5, 6, 7,
+                 8, 9, 10, 11, 12, 13, 14, 85]
+NO_CARD</div>
+      <div class="console">tag type: 0x0400
+card_id= [154, 63, 18, 196, 115]
+Failed to select tag
+
+tag type: 0x0400
+card_id= [154, 63, 18, 196, 115]
+Authentication error</div>
+    </div>
+    <h3>Чек-лист проверки</h3>
+    <ul class="check">
+      <li>B1: <code>SeekCard(0x52)</code>; статус 0 → <code>tag type: 0x0400</code> на каждой итерации, пока карта рядом; нет карты → <code>NO_CARD</code> в консоли и на OLED (0,0) в течение 200 мс.</li>
+      <li>B2: <code>Anticoll()</code> → <code>card_id= [...]</code> сразу после типа; первые 4 числа — UID, не меняется у той же карты.</li>
+      <li>B2: <code>select_tag(id)</code> == <code>MI_OK</code> → дальше молча; иначе <code>Failed to select tag</code> и поиск продолжается.</li>
+      <li>B3: <code>auth(0x60, 8, [0xFF]*6, id)</code>; ошибка → <code>Authentication error</code>.</li>
+      <li>B3: в блок 8 ровно <code>b"\x01\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x55"</code>; <code>read(8)</code> → <code>Address 8 data: ...</code>, данные совпадают; OLED <code>READ OK</code>; затем <code>stop_crypto1()</code>.</li>
+      <li>Последний байт 0x55 = 85 — поэтому в выводе 85 в конце.</li>
+      <li>Папки <code>XX_MB1</code>, <code>XX_MB2</code>, <code>XX_MB3</code>; только карта от эксперта; запись только в блок 8.</li>
+    </ul>
+    <details class="code"><summary>Эталонный код: MB/main.py (итог B1+B2+B3) <small>82 строк · AI-IoT/MB/main.py</small></summary><div class="codebox"><button class="copy" type="button">Копировать</button><pre class="py"># =====================================================================
+#  WSKZ2026 AI-IoT — Модуль B (части B1+B2+B3). RFID-пропуска
+#  ESP32 + MFRC522 (SPI) + OLED + карта MIFARE S50
+#  B1: SeekCard / NO_CARD   B2: Anticoll + select_tag   B3: auth, write, read
+# =====================================================================
+import time
+from machine import Pin, SoftI2C
+import ssd1306
+import rc522
+
+# ---------------- Константы ----------------
+PIN_RST = 16
+PIN_NSS = 13
+PIN_SCK = 15
+PIN_MOSI = 32
+PIN_MISO = 2
+PIN_SDA = 23
+PIN_SCL = 19
+POLL_MS = 200
+REQ_ALL = 0x52                       # PICC_REQALL
+AUTH_KEY_A = 0x60                    # AUTHENT1A
+KEY = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF]
+BLOCK = 8                            # блок 0 сектора 2 — единственный для записи!
+DATA = b&quot;\x01\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x55&quot;
+
+# ---------------- Оборудование ----------------
+i2c = SoftI2C(scl=Pin(PIN_SCL), sda=Pin(PIN_SDA))
+oled = ssd1306.SSD1306_I2C(128, 64, i2c)
+rfid = rc522.RC522()                                   # СВЕРИТЬ с драйвером
+rfid.Init_spi(PIN_RST, PIN_NSS, PIN_SCK, PIN_MOSI, PIN_MISO)
+MI_OK = rc522.MI_OK if hasattr(rc522, &quot;MI_OK&quot;) else rfid.MI_OK
+
+
+def show(text):
+    oled.fill(0)
+    oled.text(text, 0, 0)
+    oled.show()
+
+
+def tag_hex(tag):
+    if isinstance(tag, int):
+        return &quot;0x%04X&quot; % tag
+    return &quot;0x%02X%02X&quot; % (tag[0], tag[1])
+
+
+def work_with_card():
+    &quot;&quot;&quot;B2 + B3: номер, выбор, авторизация, запись и чтение блока 8.&quot;&quot;&quot;
+    stat, card_id = rfid.Anticoll()
+    if stat != MI_OK:
+        return
+    print(&quot;card_id=&quot;, card_id)
+    if rfid.select_tag(card_id) != MI_OK:
+        print(&quot;Failed to select tag&quot;)
+        return
+    try:
+        if rfid.auth(AUTH_KEY_A, BLOCK, KEY, card_id) != MI_OK:
+            print(&quot;Authentication error&quot;)
+            return
+        rfid.write(BLOCK, DATA)
+        data = rfid.read(BLOCK)
+        print(&quot;Address 8 data:&quot;, data)
+        show(&quot;READ OK&quot;)
+    finally:
+        rfid.stop_crypto1()
+
+
+def main():
+    while True:
+        try:
+            stat, tag = rfid.SeekCard(REQ_ALL)
+            if stat == MI_OK:
+                print(&quot;tag type:&quot;, tag_hex(tag))
+                work_with_card()
+            else:
+                print(&quot;NO_CARD&quot;)
+                show(&quot;NO_CARD&quot;)
+        except Exception as e:
+            print(&quot;ERR:&quot;, e)
+        time.sleep_ms(POLL_MS)
+
+
+main()
+</pre></div></details>
+  </article>
+</section>
+
+<!-- ===================================================== MICROPYTHON -->
+<section class="view" id="v-micropython" hidden>
+  <div class="prose">
+    <p class="eyebrow">Язык за неделю</p>
+    <h1>MicroPython: что знать наизусть</h1>
+    <p class="lead">MicroPython — это Python 3, урезанный для микроконтроллеров, плюс модули для железа: <code>machine</code>, <code>network</code>, <code>time</code> с функциями <code>ticks_*</code>. Учить весь Python не нужно. Ниже ровно тот объём, который встречается в восьми заданиях.</p>
+  </div>
+
+  <h2>1. Как живёт программа на плате</h2>
+  <div class="grid2">
+    <div class="panel">
+      <ul>
+        <li><b>REPL</b> — консоль (Shell в Thonny): пишешь строку, плата выполняет сразу.</li>
+        <li>При включении выполняется <code>boot.py</code>, затем <code>main.py</code>. Отсюда «автозапуск».</li>
+        <li><kbd>Ctrl</kbd>+<kbd>C</kbd> — прервать программу. <kbd>Ctrl</kbd>+<kbd>D</kbd> — мягкая перезагрузка (запустит main.py заново). Кнопка EN/RST — жёсткая.</li>
+        <li>Файлы на плате: Thonny → Вид → Файлы → правой кнопкой «Загрузить на /». Или <code>import os; os.listdir()</code>.</li>
+        <li><code>dir(obj)</code> и <code>help(obj)</code> показывают методы объекта — так узнают API любого драйвера.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Рабочий цикл в Thonny</h3>
+      <ol>
+        <li>Инструменты → Параметры → Интерпретатор: «MicroPython (ESP32)», нужный COM-порт.</li>
+        <li>Загрузить на плату драйверы (<code>ssd1306.py</code> и др.) и <code>secrets.py</code>.</li>
+        <li>Писать <code>main.py</code>, запускать <kbd>F5</kbd>, смотреть Shell.</li>
+        <li>Сохранить на плату как <code>main.py</code>, нажать RST — проверить автозапуск.</li>
+        <li>Скопировать тот же файл в репозиторий, <code>git commit</code>, <code>git push</code>.</li>
+      </ol>
+    </div>
+  </div>
+
+  <h2>2. Python-минимум</h2>
+  <div class="grid2">
+<pre class="snip"># числа и деление
+7 / 2    # 3.5   (всегда float)
+7 // 2   # 3     (целая часть)
+7 % 2    # 1     (остаток)
+round(3.456, 1)   # 3.5
+int("42"), float("3.5"), str(10)
+
+# форматирование — главное для экрана
+"Dist: %.1f cm" % 12.44   # 'Dist: 12.4 cm'
+"Visits: %d" % 7          # 'Visits: 7'
+"Conf: %d%%" % 87         # 'Conf: 87%'
+"%02X" % 10               # '0A' (HEX)
+"UID:" + "9A3F12C4"       # склейка
+"Wait {}s".format(5)      # 'Wait 5s'
+s[:16]                    # обрезать до 16</pre>
+<pre class="snip"># списки — буферы и окна
+buf = []
+buf.append(12.5)
+if len(buf) &gt; 5:
+    buf.pop(0)            # выкинуть самое старое
+sorted(buf)  sum(buf)  min(buf)  max(buf)
+",".join(["1", "2"])      # '1,2'
+"OBJ,bottle,87".split(",")  # ['OBJ','bottle','87']
+
+# словари — справочник, кэш, счётчики
+users = {"9A3F12C4": "ASKAR"}
+"9A3F12C4" in users       # True
+users.get("FFFF", None)   # None если нет
+cache[cls] = "HOME"
+counts[c] = counts.get(c, 0) + 1
+for k, v in counts.items(): ...</pre>
+<pre class="snip"># функции и глобальные переменные
+state = "HEAT"
+def set_state(new):
+    global state           # без этого — локальная!
+    state = new
+
+# ошибки: программа не должна падать
+try:
+    d = sensor.distance_cm()
+except Exception as e:     # НЕ голый except:
+    print("ERR:", e)
+    d = None
+finally:
+    r.close()              # выполнится всегда</pre>
+<pre class="snip"># байты и текст (RFID, UART)
+b = "ASKAR".encode()      # str -&gt; bytes
+s = b"ASKAR".decode()     # bytes -&gt; str
+(name + " " * 16)[:16]    # дополнить пробелами
+n.to_bytes(4, "big")      # int -&gt; 4 байта
+int.from_bytes(b[:4], "big")
+line.strip()              # убрать \n и пробелы
+
+# файлы и JSON
+import json
+with open("users.json") as f:
+    users = json.load(f)
+json.dumps({"a": 1})      # dict -&gt; str</pre>
+  </div>
+
+  <h2>3. Железо: шпаргалка API</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Задача</th><th>Код</th></tr></thead>
+    <tbody>
+      <tr><td>Цифровой выход / вход</td><td><code>led = Pin(2, Pin.OUT); led.value(1)</code> · <code>pir = Pin(27, Pin.IN); pir.value()</code></td></tr>
+      <tr><td>Прерывание по фронту</td><td><code>pin.irq(trigger=Pin.IRQ_RISING, handler=f)</code></td></tr>
+      <tr><td>АЦП 0…4095</td><td><code>adc = ADC(Pin(34)); adc.atten(ADC.ATTN_11DB); adc.width(ADC.WIDTH_12BIT); adc.read()</code></td></tr>
+      <tr><td>ШИМ (пассивный зуммер)</td><td><code>pwm = PWM(Pin(26), freq=2000, duty=512); pwm.duty(0)</code></td></tr>
+      <tr><td>I2C + OLED</td><td><code>i2c = SoftI2C(scl=Pin(19), sda=Pin(23)); oled = ssd1306.SSD1306_I2C(128, 64, i2c)</code></td></tr>
+      <tr><td>Рисование</td><td><code>oled.fill(0); oled.text("Hi", 0, 16); oled.rect(x, y, w, h, 1); oled.fill_rect(...); oled.invert(1); oled.show()</code></td></tr>
+      <tr><td>WS2812</td><td><code>np = NeoPixel(Pin(25), 4); np[0] = (255, 0, 0); np.write()</code></td></tr>
+      <tr><td>Таймер</td><td><code>t = Timer(0); t.init(period=200, mode=Timer.PERIODIC, callback=f)</code></td></tr>
+      <tr><td>UART</td><td><code>u = UART(2, baudrate=115200, tx=17, rx=16, rxbuf=4096); u.any(); u.read(n); u.write(b"ACK\n")</code></td></tr>
+      <tr><td>Время</td><td><code>time.ticks_ms()</code>, <code>time.ticks_diff(a, b)</code>, <code>time.ticks_add(t, ms)</code>, <code>time.sleep_ms(10)</code></td></tr>
+      <tr><td>Wi-Fi</td><td><code>w = network.WLAN(network.STA_IF); w.active(True); w.connect(ssid, pwd); w.isconnected()</code></td></tr>
+      <tr><td>HTTP</td><td><code>r = requests.post(url, data=..., headers=..., timeout=10); r.status_code; r.json(); r.close()</code></td></tr>
+      <tr><td>Память</td><td><code>import gc; gc.collect(); gc.mem_free()</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>4. Пять шаблонов, из которых собраны все решения</h2>
+  <div class="grid2">
+    <div class="panel">
+      <h3>Неблокирующий цикл</h3>
+<pre class="snip">next_t = time.ticks_add(time.ticks_ms(), 1000)
+while True:
+    now = time.ticks_ms()
+    if time.ticks_diff(now, next_t) &gt;= 0:
+        next_t = time.ticks_add(now, 1000)
+        do_every_second()
+    time.sleep_ms(10)</pre>
+      <p class="muted">Почему <code>ticks_diff</code>, а не <code>now - t</code>: счётчик ticks переполняется и начинает с нуля, <code>ticks_diff</code> это учитывает.</p>
+    </div>
+    <div class="panel">
+      <h3>Таймер ставит флаг</h3>
+<pre class="snip">tick = False
+def on_timer(t):
+    global tick
+    tick = True          # коротко! без I2C и HTTP
+
+Timer(0).init(period=200, mode=Timer.PERIODIC,
+              callback=on_timer)
+while True:
+    if tick:
+        tick = False
+        measure_and_draw()</pre>
+    </div>
+    <div class="panel">
+      <h3>Фильтры</h3>
+<pre class="snip">def median(v):
+    s = sorted(v); n = len(s)
+    return s[n//2] if n % 2 else (s[n//2-1] + s[n//2]) / 2
+
+avg = sum(window) // len(window)   # скользящее среднее</pre>
+      <p class="muted">Медиана выкидывает одиночный выброс (взмах рукой). Среднее его размазывает.</p>
+    </div>
+    <div class="panel">
+      <h3>Гистерезис</h3>
+<pre class="snip">if not alarm and avg &gt; thr:
+    alarm = True
+elif alarm and avg &lt; thr - 20:
+    alarm = False</pre>
+      <p class="muted">Два разных порога для входа и выхода. Без этого на границе состояние «дребезжит».</p>
+    </div>
+    <div class="panel">
+      <h3>Машина состояний</h3>
+<pre class="snip">state = "HEAT"
+if state == "HEAT" and secs &gt;= 30:
+    state = "CAL"
+elif state == "CAL" and secs &gt;= 60:
+    state = "OK"</pre>
+    </div>
+    <div class="panel">
+      <h3>Разбор ответа ИИ</h3>
+<pre class="snip">def pick_word(text, allowed):
+    t = text.upper()
+    found = [w for w in allowed if w in t]
+    return found[0] if len(found) == 1 else None
+# в MicroPython нет re.findall — числа ищем вручную</pre>
+    </div>
+  </div>
+
+  <h2>5. Ошибки, которые увидишь в Shell</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Сообщение</th><th>Что значит</th><th>Что делать</th></tr></thead>
+    <tbody>
+      <tr><td><code>ImportError: no module named 'ssd1306'</code></td><td>драйвер не загружен на плату</td><td>загрузить файл из папки drivers</td></tr>
+      <tr><td><code>OSError: [Errno 19] ENODEV</code></td><td>устройство на I2C не ответило</td><td>кабель, разъём, <code>i2c.scan()</code></td></tr>
+      <tr><td><code>OSError: [Errno 110] ETIMEDOUT</code></td><td>тайм-аут (сеть, датчик)</td><td>ловить в try, работать дальше</td></tr>
+      <tr><td><code>OSError: -202</code></td><td>DNS не нашёл адрес — нет интернета</td><td>проверить Wi-Fi, адрес API</td></tr>
+      <tr><td><code>MemoryError</code> / <code>ENOMEM</code></td><td>не хватило памяти (часто TLS)</td><td><code>gc.collect()</code>, закрывать ответы</td></tr>
+      <tr><td><code>Wifi Internal State Error</code></td><td><code>connect()</code> во время подключения</td><td>обернуть в try, не дёргать чаще 10 с</td></tr>
+      <tr><td><code>TypeError: unsupported types for __add__: 'str', 'int'</code></td><td>склейка строки с числом</td><td><code>str(n)</code> или <code>%d</code></td></tr>
+      <tr><td><code>NameError</code> / <code>local variable referenced before assignment</code></td><td>забыли <code>global</code></td><td>объявить <code>global x</code> в функции</td></tr>
+      <tr><td><code>could not enter raw REPL</code></td><td>Thonny не может прервать программу</td><td>Stop, кнопка RST, повторить</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>6. Упражнения по нарастающей</h2>
+  <p class="muted">Каждое — 10–30 минут. Ответ раскрывается по клику. Студент делает на плате, эксперт — хотя бы читает и объясняет вслух.</p>
+  <div class="grid2" id="drills"></div>
+</section>
+
+<!-- ===================================================== ЗАЩИТА -->
+<section class="view" id="v-defense" hidden>
+  <div class="prose">
+    <p class="eyebrow">Чтобы студент не потерял баллы на трактовке</p>
+    <h1>Защита студента</h1>
+    <p class="lead">Законный способ «защитить» студента — заранее найти места, где задание можно понять двумя способами, и добиться ясности до старта: на обсуждении 30 % изменений и на С-1. Если трактовка не уточнена, а решение студента разумно, у эксперта есть аргументы ниже.</p>
+  </div>
+
+  <h2>Неоднозначности в заданиях</h2>
+  <div class="grid2" id="amb">
+    <div class="amb"><span class="tag c">все</span><p class="q">Что писать в AI_ERR при отсутствии Wi-Fi и как часто?</p><p class="a">Не сказано. Разумно: <code>мс,AI_ERR,NO_WIFI</code> не чаще раза в 10 с. Предложить на С-1 закрепить.</p></div>
+    <div class="amb"><span class="tag c">все</span><p class="q">«Пауза основного цикла ≤10 с во время запроса» — а как же «измерение по таймеру»?</p><p class="a">Таймер тикает, но работа идёт в цикле, который ждёт ответа. Это прямо разрешено правилом 6 раздела «ИИ-сервис».</p></div>
+    <div class="amb"><span class="tag c">A1</span><p class="q">При OUT OF RANGE заголовок HCSR04 остаётся?</p><p class="a">Текст: «остальные строки и шкала не выводятся», макет показывает заголовок. Аргумент — макет.</p></div>
+    <div class="amb"><span class="tag c">A1</span><p class="q">«Пока в буфере меньше 10 значений» — какой буфер? Медианный хранит 5.</p><p class="a">Речь о буфере истории для ИИ (10 значений с шагом 0,5 с). Иначе условие никогда не выполнится.</p></div>
+    <div class="amb"><span class="tag c">A1</span><p class="q">При ошибке ИИ на экране «AI: ---». Инверсия по «последней оценке» остаётся?</p><p class="a">Эталон сбрасывает оценку при ошибке, чтобы экран и инверсия не противоречили друг другу. Обратное толкование тоже защитимо («последнее допустимое значение»).</p></div>
+    <div class="amb"><span class="tag c">A1</span><p class="q">Границы зон: 20 и 50 — это MID?</p><p class="a">«От 20 до 50» — включительно, «менее 20», «более 50». Эталон: 20 и 50 → MID.</p></div>
+    <div class="amb"><span class="tag c">A2</span><p class="q">«Порог — 50 % от среднего в сторону затемнения» при растущем сигнале.</p><p class="a">Среднее × 1,5 может превысить 4095. Попросить экспертов уточнить или ограничить порог. Без уточнения — объяснить расчёт на проверке.</p></div>
+    <div class="amb"><span class="tag c">A2</span><p class="q">Как считать «гистерезис 10 % от порога»: ±5 % или 10 % в одну сторону?</p><p class="a">Эталон: вход в Low ровно на пороге, выход — на 10 % порога дальше. Любой вариант без мерцания соответствует цели требования.</p></div>
+    <div class="amb"><span class="tag c">A2</span><p class="q">После ошибки ИИ ждать минуту или повторять через 10 с?</p><p class="a">Правило: «не ранее чем через 10 с». Оба варианта законны.</p></div>
+    <div class="amb"><span class="tag c">B1</span><p class="q">«XXX/4095» — сырое значение или среднее?</p><p class="a">Сказано «используется скользящее среднее». Эталон показывает среднее — тогда экран совпадает с решением о тревоге.</p></div>
+    <div class="amb"><span class="tag c">B1</span><p class="q">THRESHOLD_DEFAULT меньше максимума фона.</p><p class="a">Тогда тревога сразу после калибровки. Проверить число эксперта до старта модуля.</p></div>
+    <div class="amb"><span class="tag c">B2</span><p class="q">В каком формате хранить счётчик в блоке 9?</p><p class="a">Не задано. Любой формат, который студент объяснит и который переживает перезагрузку.</p></div>
+    <div class="amb"><span class="tag c">B2</span><p class="q">Результат держится 2 с, а запрос к ИИ «не задерживает показ». Когда слать запрос?</p><p class="a">Эталон: после 2 с показа, затем экран ожидания и запрос. Так результат не висит 10 с.</p></div>
+    <div class="amb"><span class="tag c">B2</span><p class="q">register() — какое имя писать?</p><p class="a">Имя из users.json по UID карты. Эталон также принимает имя аргументом: <code>register("ASKAR")</code>.</p></div>
+    <div class="amb"><span class="tag c">C1</span><p class="q">Что такое «подтверждённое распознавание» для счётчиков STAT?</p><p class="a">Эталон считает момент подтверждения (3-е сообщение подряд). Если считать каждое сообщение после подтверждения, счётчики растут по 5 в секунду — бессмысленно.</p></div>
+    <div class="amb"><span class="tag c">C1</span><p class="q">Во время запроса к ИИ ESP32 не шлёт ACK → на LCD «NO LINK».</p><p class="a">Следствие разрешённой паузы ≤10 с. Объяснить на проверке.</p></div>
+    <div class="amb"><span class="tag c">C1</span><p class="q">Если все счётчики нулевые — что печатать?</p><p class="a">Эталон печатает просто <code>STAT</code>.</p></div>
+    <div class="amb"><span class="tag c">MA</span><p class="q">LED-тест «по очереди загораются красным, зелёным и синим».</p><p class="a">Все 4 сразу меняют цвет R→G→B или диоды по одному? Эталон — все сразу. Уточнить.</p></div>
+    <div class="amb"><span class="tag c">MA1</span><p class="q">Макет «ZONE: SAFE, 85 см» показывает пустую шкалу.</p><p class="a">По формуле (100 см — пусто) при 85 см заполнено ~15 %, как на макете IIoT A1. Макет MA1 противоречит тексту — аргумент для студента.</p></div>
+  </div>
+
+  <h2>Проверка перед «поднять руку»</h2>
+  <div class="panel">
+    <ul class="check">
+      <li>Выдернуть USB и вставить снова — программа стартовала сама?</li>
+      <li>Выключить точку доступа — WiFi: FAIL, всё остальное работает, после включения сеть вернулась?</li>
+      <li>При выключенном питании отсоединить датчик, включить — программа не упала?</li>
+      <li>Каждая строка на экране совпадает с заданием символ в символ (регистр, пробелы, двоеточия)?</li>
+      <li>Журнал в консоли в нужном формате, без лишнего мусора?</li>
+      <li>Последний коммит «A1 final» запушен, код в репозитории = код на плате?</li>
+      <li><code>secrets.py</code> не попал в репозиторий, есть <code>.gitignore</code> и <code>secrets_example.py</code> с <code>"****"</code>?</li>
+      <li>Драйверы не в репозитории; папка модуля названа правильно?</li>
+    </ul>
+  </div>
+
+  <h2>Что эксперт может спросить у студента</h2>
+  <p class="muted">Правило: «участник должен по просьбе эксперта объяснить любой фрагмент кода». Тренируйте ответы вслух.</p>
+  <div class="grid2" id="viva"></div>
+
+  <div class="note">
+    <b>Про роль эксперта</b>
+    <p>Точные права и запреты эксперта (может ли он оценивать своего участника, общаться с ним во время модуля) задаёт регламент WSKZ 2026 и главный эксперт — перечитайте их до С-2. Здесь только техническая часть. Все вопросы по трактовкам лучше поднимать до старта и фиксировать письменно — это работает на всех участников и не выглядит как давление в пользу своего.</p>
+  </div>
+</section>
+
+<!-- ===================================================== ПЛАН -->
+<section class="view" id="v-plan" hidden>
+  <div class="prose">
+    <p class="eyebrow">7 дней · отметки сохраняются в этом браузере</p>
+    <h1>План на неделю</h1>
+    <p class="lead"><span class="who e">Э</span> — для эксперта (понимание и умение спросить), <span class="who s">С</span> — для студента (руки на плате). Последний день — генеральная репетиция с изменёнными условиями.</p>
+    <div class="progress" aria-hidden="true"><i id="plan-bar"></i></div>
+    <p class="stats" id="plan-stat"></p>
+  </div>
+  <div id="plan-days" class="grid2"></div>
+</section>
+
+<!-- ===================================================== КАРТОЧКИ -->
+<section class="view" id="v-cards" hidden>
+  <div class="prose">
+    <p class="eyebrow">Повторение</p>
+    <h1>Карточки</h1>
+    <p class="lead">Нажми на карточку, чтобы увидеть ответ. «Знаю» убирает её из круга, «Повторить» возвращает в конец. Прогресс хранится в этом браузере.</p>
+  </div>
+  <div class="cardbar" id="card-cats"></div>
+  <div class="flash" id="flash" tabindex="0" role="button" aria-label="Перевернуть карточку">
+    <span class="cat" id="f-cat"></span>
+    <p class="q" id="f-q"></p>
+    <div class="a" id="f-a" hidden></div>
+    <p class="hint" id="f-hint">Нажми, чтобы увидеть ответ</p>
+  </div>
+  <div class="btnrow">
+    <button class="btn bad" id="f-again" type="button">Повторить</button>
+    <button class="btn good" id="f-know" type="button">Знаю</button>
+    <button class="btn" id="f-reset" type="button">Начать заново</button>
+  </div>
+  <p class="stats" id="f-stat"></p>
+</section>
+
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- безопасное хранилище ---------- */
+  function load(key, def) {
+    try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch (e) { return def; }
+  }
+  function save(key, val) {
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* приватный режим */ }
+  }
+  function esc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  /* ---------- подсветка Python ---------- */
+  var RE = /(#[^\n]*)|(b?"(?:[^"\\\n]|\\.)*"|b?'(?:[^'\\\n]|\\.)*')|\b(def|class|return|if|elif|else|for|while|in|not|and|or|try|except|finally|import|from|as|global|True|False|None|with|break|continue|pass|raise|lambda|is)\b|\b(0x[0-9A-Fa-f]+|\d+(?:\.\d+)?)\b/g;
+  function highlight(src) {
+    var out = "", last = 0, m;
+    RE.lastIndex = 0;
+    while ((m = RE.exec(src))) {
+      out += esc(src.slice(last, m.index));
+      var cls = m[1] ? "hl-c" : m[2] ? "hl-s" : m[3] ? "hl-k" : "hl-n";
+      out += '<span class="' + cls + '">' + esc(m[0]) + "</span>";
+      last = RE.lastIndex;
+    }
+    return out + esc(src.slice(last));
+  }
+  function decorate(root) {
+    root.querySelectorAll("pre.py, pre.snip").forEach(function (pre) {
+      if (pre.dataset.done) return;
+      pre.dataset.done = "1";
+      pre.innerHTML = highlight(pre.textContent);
+    });
+  }
+
+  /* ---------- копирование кода ---------- */
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest(".copy");
+    if (!b) return;
+    var pre = b.parentNode.querySelector("pre");
+    var text = pre.textContent;
+    function done(msg) { b.textContent = msg; setTimeout(function () { b.textContent = "Копировать"; }, 1600); }
+    function fallback() {
+      var r = document.createRange(); r.selectNodeContents(pre);
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      done("Выделено — Ctrl+C");
+    }
+    try {
+      navigator.clipboard.writeText(text).then(function () { done("Скопировано"); }, fallback);
+    } catch (err) { fallback(); }
+  });
+
+  /* ---------- маршрутизация по #hash ---------- */
+  var MODS = ["a1", "a2", "b1", "b2", "c1", "ma", "mb"];
+  var VIEWS = ["overview", "hardware", "modules", "micropython", "defense", "plan", "cards"];
+  function route() {
+    var h = (location.hash || "#overview").slice(1);
+    var view = MODS.indexOf(h) >= 0 ? "modules" : (VIEWS.indexOf(h) >= 0 ? h : "overview");
+    if (view === "modules" && MODS.indexOf(h) < 0) h = "a1";
+    VIEWS.forEach(function (v) {
+      document.getElementById("v-" + v).hidden = v !== view;
+    });
+    document.querySelectorAll("nav.tabs a").forEach(function (a) {
+      if (a.dataset.view === view) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+    });
+    if (view === "modules") {
+      MODS.forEach(function (m) { document.getElementById("m-" + m).hidden = m !== h; });
+      document.querySelectorAll(".modnav a").forEach(function (a) {
+        a.setAttribute("aria-current", a.dataset.mod === h ? "true" : "false");
+      });
+      var tab = document.querySelector('nav.tabs a[data-view="modules"]');
+      if (tab) tab.setAttribute("href", "#" + h);
+    }
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener("hashchange", route);
+
+  /* ---------- упражнения ---------- */
+  var DRILLS = [
+    ["1. Формат для экрана", "Получи строки <code>Dist: 12.4 cm</code> из 12.44, <code>Conf: 87%</code> из 87 и <code>UID:0A1B2C3D</code> из списка [10, 27, 44, 61].",
+      '"Dist: %.1f cm" % 12.44\n"Conf: %d%%" % 87\nuid = [10, 27, 44, 61]\n"UID:%02X%02X%02X%02X" % tuple(uid)'],
+    ["2. Привет, OLED", "Подключи OLED (SDA 23, SCL 19), найди его адрес и выведи 4 строки на y = 0, 16, 32, 48.",
+      'from machine import Pin, SoftI2C\nimport ssd1306\ni2c = SoftI2C(scl=Pin(19), sda=Pin(23))\nprint(i2c.scan())          # [60] = 0x3C\noled = ssd1306.SSD1306_I2C(128, 64, i2c)\noled.fill(0)\nfor i, y in enumerate((0, 16, 32, 48)):\n    oled.text("Line %d" % i, 0, y)\noled.show()'],
+    ["3. Мигание без sleep", "Переключай переменную on/off каждые 500 мс, не блокируя цикл, и печатай её.",
+      'import time\non = False\nnext_t = time.ticks_ms()\nwhile True:\n    now = time.ticks_ms()\n    if time.ticks_diff(now, next_t) >= 0:\n        next_t = time.ticks_add(now, 500)\n        on = not on\n        print(on)\n    time.sleep_ms(10)'],
+    ["4. Таймер и флаг", "Таймер 200 мс ставит флаг, цикл считает срабатывания и раз в секунду печатает число (должно быть 5).",
+      'from machine import Timer\nimport time\ntick = False\ndef on_timer(t):\n    global tick\n    tick = True\nTimer(0).init(period=200, mode=Timer.PERIODIC, callback=on_timer)\nn, t0 = 0, time.ticks_ms()\nwhile True:\n    if tick:\n        tick = False\n        n += 1\n    if time.ticks_diff(time.ticks_ms(), t0) >= 1000:\n        print(n); n = 0; t0 = time.ticks_ms()'],
+    ["5. Медиана и буфер", "Буфер на 5 значений + медиана. Проверь на [50, 50, 5, 50, 50] — должно быть 50.",
+      'buf = []\ndef add(v):\n    buf.append(v)\n    if len(buf) > 5:\n        buf.pop(0)\ndef median(v):\n    s = sorted(v); n = len(s)\n    return s[n//2] if n % 2 else (s[n//2-1] + s[n//2]) / 2\nfor v in [50, 50, 5, 50, 50]:\n    add(v)\nprint(median(buf))   # 50'],
+    ["6. Зоны с границами", "Функция zone(d): NEAR < 20, MID 20…50, FAR > 50. Проверь 19.9, 20, 50, 50.1.",
+      'def zone(d):\n    if d < 20:\n        return "NEAR"\n    if d <= 50:\n        return "MID"\n    return "FAR"\nprint([zone(x) for x in (19.9, 20, 50, 50.1)])'],
+    ["7. Шкала", "Нарисуй шкалу x=0, y=54, 122×10: 100 см и дальше — пусто, 0 — полная.",
+      'def bar(d):\n    fill = int(122 * (100 - min(d, 100)) / 100)\n    oled.rect(0, 54, 122, 10, 1)\n    oled.fill_rect(0, 54, fill, 10, 1)'],
+    ["8. АЦП и среднее", "Читай GPIO34 каждые 200 мс, печатай среднее последних 4. Закрой датчик ладонью — значение растёт или падает?",
+      'from machine import ADC, Pin\nimport time\nadc = ADC(Pin(34))\nadc.atten(ADC.ATTN_11DB)\nadc.width(ADC.WIDTH_12BIT)\nw = []\nwhile True:\n    w.append(adc.read())\n    if len(w) > 4:\n        w.pop(0)\n    print(sum(w) // len(w))\n    time.sleep_ms(200)'],
+    ["9. Фронт PIR", "Считай срабатывания PIR: только переход 0 → 1, печатай MOTION один раз на срабатывание.",
+      'pir = Pin(27, Pin.IN)\nprev, count = 0, 0\nwhile True:\n    v = pir.value()\n    if v == 1 and prev == 0:\n        count += 1\n        print("MOTION", count)\n    prev = v\n    time.sleep_ms(50)'],
+    ["10. WS2812 мигает", "4 светодиода мигают красным 1 с / 1 с без sleep, пишем в ленту только при смене.",
+      'from neopixel import NeoPixel\nnp = NeoPixel(Pin(25), 4)\nstate, t0 = None, time.ticks_ms()\nwhile True:\n    on = (time.ticks_diff(time.ticks_ms(), t0) // 1000) % 2 == 0\n    if on != state:\n        state = on\n        for i in range(4):\n            np[i] = (60, 0, 0) if on else (0, 0, 0)\n        np.write()\n    time.sleep_ms(20)'],
+    ["11. Машина состояний", "HEAT 30 с → CAL 60 с → OK; на экране «Left: N s».",
+      'state, secs = "HEAT", 0\nwhile True:\n    time.sleep(1)\n    secs += 1\n    if state == "HEAT" and secs >= 30:\n        state, secs = "CAL", 0\n    elif state == "CAL" and secs >= 60:\n        state, secs = "OK", 0\n    left = (30 if state == "HEAT" else 60) - secs\n    print(state, "Left: %d s" % left)'],
+    ["12. Wi-Fi с тайм-аутом", "Функция подключения, которая ждёт не дольше 10 с и возвращает True/False.",
+      'import network, time\nwlan = network.WLAN(network.STA_IF)\ndef wifi(ssid, pwd, ms=10000):\n    wlan.active(True)\n    if not wlan.isconnected():\n        wlan.connect(ssid, pwd)\n        t0 = time.ticks_ms()\n        while not wlan.isconnected() and time.ticks_diff(time.ticks_ms(), t0) < ms:\n            time.sleep_ms(200)\n    return wlan.isconnected()'],
+    ["13. Запрос к ИИ", "POST в Chat Completions, вернуть текст ответа, на коде ≠ 200 — ошибка. Ответ закрыть всегда.",
+      'import requests, json, gc\nimport secrets\ndef ask(prompt):\n    gc.collect()\n    body = {"model": secrets.MODEL,\n            "messages": [{"role": "user", "content": prompt}],\n            "max_tokens": 50, "temperature": 0}\n    h = {"Content-Type": "application/json",\n         "Authorization": "Bearer " + secrets.API_KEY}\n    r = requests.post(secrets.API_URL, data=json.dumps(body).encode(), headers=h, timeout=10)\n    try:\n        if r.status_code != 200:\n            raise OSError("HTTP%d" % r.status_code)\n        return r.json()["choices"][0]["message"]["content"]\n    finally:\n        r.close()'],
+    ["14. Число из текста", "Из «I recommend 15 seconds.» достать 15 и проверить диапазон 5…30. Если чисел не одно — отбросить.",
+      'def ints(text):\n    nums, cur = [], ""\n    for ch in text + " ":\n        if "0" <= ch <= "9":\n            cur += ch\n        elif cur:\n            nums.append(int(cur)); cur = ""\n    return nums\nn = ints("I recommend 15 seconds.")\nok = len(n) == 1 and 5 <= n[0] <= 30'],
+    ["15. Разбор строки UART", "Разобрать <code>OBJ,bottle,87</code>: класс из списка, процент 0…100; всё остальное — None.",
+      'def parse(line):\n    p = line.strip().split(",")\n    if len(p) != 3 or p[0] != "OBJ" or p[1] not in CLASSES:\n        return None\n    try:\n        c = int(p[2])\n    except ValueError:\n        return None\n    return (p[1], c) if 0 <= c <= 100 else None'],
+    ["16. UID и BCC", "Из card_id = [154, 63, 18, 196, 115] получи «9A3F12C4» и проверь, что 5-й байт — XOR первых четырёх.",
+      'cid = [154, 63, 18, 196, 115]\nuid = "%02X%02X%02X%02X" % tuple(cid[:4])\nbcc = cid[0] ^ cid[1] ^ cid[2] ^ cid[3]\nprint(uid, bcc == cid[4])   # 9A3F12C4 True'],
+    ["17. 16 байт для блока", "Имя «ASKAR» → 16 байт с пробелами и обратно; счётчик 7 → 16 байт и обратно.",
+      'blk = ("ASKAR" + " " * 16)[:16].encode()\nname = blk.decode().strip()\ncnt = (7).to_bytes(4, "big") + bytes(12)\nn = int.from_bytes(cnt[:4], "big")'],
+    ["18. Git на модуле", "Последовательность команд: первый коммит, промежуточный, финальный.",
+      '# один раз\ngit clone <url> && cd WSKZ2026_IIoT_XX\necho secrets.py >> .gitignore\n# каждые <= 30 минут\ngit add A1/main.py A1/secrets_example.py .gitignore\ngit commit -m "A1: wifi connect"\ngit push\n# в конце\ngit commit -am "A1 final" && git push']
+  ];
+  var dr = document.getElementById("drills");
+  dr.innerHTML = DRILLS.map(function (d, i) {
+    return '<div class="panel"><h3>' + d[0] + "</h3><p>" + d[1] + '</p><details><summary>Ответ</summary><pre class="snip">' +
+      esc(d[2]) + "</pre></details></div>";
+  }).join("");
+
+  /* ---------- вопросы на защите ---------- */
+  var VIVA = [
+    ["Зачем медиана, а не среднее?", "Медиана выбрасывает одиночный выброс: из [50, 50, 5, 50, 50] получится 50. Среднее дало бы 41 — скачок, который задание запрещает."],
+    ["Почему в обработчике таймера только флаг?", "Обработчик должен быть коротким. I2C, print и тем более HTTP в нём тормозят или ломают программу; работа выполняется в основном цикле по флагу."],
+    ["Что будет без oled.fill(0)?", "Новый текст ляжет поверх старого: «12.4» поверх «120.5» даст мусор. Задание требует очистки перед каждым обновлением."],
+    ["Зачем ticks_diff вместо вычитания?", "Счётчик ticks_ms переполняется и начинается заново; ticks_diff правильно считает разницу через переполнение."],
+    ["Что делает программа без сети?", "Показывает WiFi: FAIL / AI: OFFLINE, датчики и экран работают, ИИ-строка в резервном значении, раз в 10 с пробует переподключиться."],
+    ["Почему датчик на GPIO34?", "Это ADC1. ADC2 не работает, когда включён Wi-Fi. Плюс GPIO34 только вход — для датчика это нормально."],
+    ["Что такое гистерезис, где он у тебя?", "Разные пороги на вход и выход из состояния. В B1: тревога при среднем > порога, выход — при < порога − 20. Без него на границе мигает."],
+    ["Модель ответила «Not APPROACH, it is AWAY». Что сделает программа?", "Найдёт два допустимых слова, ответ неоднозначный → AI_BAD, значение не применяется."],
+    ["Зачем gc.collect() и r.close()?", "HTTPS на ESP32 берёт десятки килобайт памяти. Без сборки мусора и закрытия сокета через несколько запросов будет MemoryError."],
+    ["Почему secrets.py не в репозитории?", "Там пароль Wi-Fi и API-ключ. В репозиторий кладут secrets_example.py с теми же именами и \"****\", а secrets.py — в .gitignore."],
+    ["Что лежит в блоке 11 карты?", "Трейлер сектора 2: ключ A, биты доступа, ключ B. Запись туда может навсегда заблокировать сектор."],
+    ["Что за пятое число в card_id?", "BCC — контрольный байт, XOR четырёх байт UID. UID — только первые 4."],
+    ["Зачем stop_crypto1()?", "Выключает шифрование Crypto1 в считывателе после авторизации, иначе следующая карта/операция не пойдёт."],
+    ["Почему TX к RX?", "Передатчик одного устройства должен идти на приёмник другого; плюс общий GND и одна скорость 115200."],
+    ["Зачем rxbuf у UART?", "Пока ESP32 ждёт ИИ до 10 с, камера шлёт строки. Буфер их копит, после ответа они обрабатываются, ничего не теряется."],
+    ["Как ты проверил направление сигнала датчика света?", "Закрыл датчик ладонью и смотрел значение в консоли; результат записан в константу DARK_IS_HIGH."]
+  ];
+  document.getElementById("viva").innerHTML = VIVA.map(function (v) {
+    return '<div class="amb"><p class="q">' + esc(v[0]) + '</p><p class="a">' + esc(v[1]) + "</p></div>";
+  }).join("");
+
+  /* ---------- план ---------- */
+  var PLAN = [
+    ["День 1", "Основа и инструменты", [
+      ["e", "Прочитать «Обзор» и «Железо», уметь объяснить каждую строку таблицы пинов"],
+      ["e", "Найти и сохранить Practical Training Guide ZL-02B и папку drivers (ssd1306.py, HCSR04.py, rc522.py)"],
+      ["s", "Thonny: прошивка MicroPython на ESP32, выбор порта, REPL, загрузка файлов"],
+      ["s", "Упражнения 1–3, OLED показывает 4 строки, i2c.scan() → [60]"],
+      ["e", "Карточки: категории «Железо» и «MicroPython»"]]],
+    ["День 2", "Дальномер: MA и A1", [
+      ["e", "Разобрать модули A1 и MA: чек-листы, макеты, ловушки"],
+      ["s", "Упражнения 4–7 (таймер, медиана, зоны, шкала)"],
+      ["s", "MA с нуля без подсказок: A1 → A2 → A3, по часу на часть, с таймером"],
+      ["s", "IIoT A1 без ИИ: экран, медиана, зоны, шкала, журнал"],
+      ["e", "Проверить работу студента по чек-листу A1, задать 5 вопросов из «Защиты»"]]],
+    ["День 3", "Аналоговые датчики: A2 и B1", [
+      ["e", "АЦП, PIR, MQ-2, WS2812; неоднозначности A2 и B1"],
+      ["s", "Упражнения 8–11"],
+      ["s", "Определить направление сигнала датчика света на стенде"],
+      ["s", "A2 и B1 без ИИ: калибровка, гистерезис, отсчёт HOLD, этапы, мигание"]]],
+    ["День 4", "ИИ-сервис и GitHub", [
+      ["e", "Раздел ИИ-сервиса: формат запроса, коды 401/429/5xx, правила частоты и журнал AI_*"],
+      ["s", "Упражнения 12–14: Wi-Fi, запрос, разбор ответа"],
+      ["s", "Добавить ИИ в A1, A2, B1; проверить выключением точки доступа"],
+      ["s", "GitHub: клон, .gitignore, secrets_example.py, коммит каждые 30 минут, «A1 final»"],
+      ["e", "Карточки: «ИИ и сеть», «Git»"]]],
+    ["День 5", "RFID: MB и B2", [
+      ["e", "Память MIFARE, порядок команд, почему нельзя писать в трейлеры"],
+      ["s", "Упражнения 16–17"],
+      ["s", "MB по частям: B1 → B2 → B3, сверка вывода консоли с примером"],
+      ["s", "B2: users.json, register() из консоли, счётчик проходов, риск от ИИ"]]],
+    ["День 6", "UART и ИИ-камера C1", [
+      ["e", "Протокол OBJ/NONE/ACK, K210 и MaixPy, архитектура C1"],
+      ["s", "Упражнение 15; сторона ESP32 с имитацией камеры (второй ESP32 или USB-UART)"],
+      ["s", "Сторона A01-AI: камера, FPS, модель, рамки, отправка, LINK OK/NO LINK"],
+      ["s", "Связать обе стороны, проверить LINK LOST, кэш типов и STAT"]]],
+    ["День 7", "Генеральная репетиция", [
+      ["e", "Изменить один модуль на 30 %: пороги, тексты, пины или формат журнала"],
+      ["s", "3 часа на изменённый модуль с коммитами каждые 30 минут"],
+      ["e", "Проверка по чек-листу и устные вопросы, как на чемпионате"],
+      ["e", "Пройти «Неоднозначности» и решить, что поднять на С-1"],
+      ["s", "Список своих ошибок за неделю, перечитать перед сном"]]]
+  ];
+  var done = load("iot-plan", {});
+  var pd = document.getElementById("plan-days");
+  pd.innerHTML = PLAN.map(function (d, i) {
+    return '<div class="panel day"><h3>' + d[0] + " <small>" + d[1] + '</small></h3><ul class="todo">' +
+      d[2].map(function (t, j) {
+        var id = "p" + i + "-" + j;
+        return '<li><label for="' + id + '"><input type="checkbox" id="' + id + '"' + (done[id] ? " checked" : "") +
+          '><span><span class="who ' + t[0] + '">' + (t[0] === "e" ? "Э" : "С") + "</span>" + t[1] + "</span></label></li>";
+      }).join("") + "</ul></div>";
+  }).join("");
+  function planStat() {
+    var all = pd.querySelectorAll("input"), n = 0;
+    all.forEach(function (c) { if (c.checked) n++; });
+    document.getElementById("plan-bar").style.width = (100 * n / all.length) + "%";
+    document.getElementById("plan-stat").textContent = "Сделано " + n + " из " + all.length;
+  }
+  pd.addEventListener("change", function (e) {
+    if (e.target.type !== "checkbox") return;
+    done[e.target.id] = e.target.checked;
+    save("iot-plan", done);
+    planStat();
+  });
+  planStat();
+
+  /* ---------- карточки ---------- */
+  var CARDS = [
+    ["Железо", "Почему аналоговые датчики на GPIO34, а не на любом пине?", "GPIO34 — канал ADC1. ADC2 не работает при включённом Wi-Fi, а Wi-Fi нужен в каждом модуле IIoT."],
+    ["Железо", "Какие GPIO у ESP32 только входы?", "34, 35, 36, 39 (34–39). Подтяжек у них нет."],
+    ["Железо", "Почему с GPIO12 надо быть осторожнее?", "Это strapping-пин: если при загрузке на нём HIGH, ESP32 выбирает питание флеш 1,8 В и может не загрузиться."],
+    ["Железо", "Формула расстояния HC-SR04?", "Расстояние (см) = время эха (мкс) × 0,0343 / 2 ≈ время / 58."],
+    ["Железо", "Диапазон HC-SR04 по заданию?", "2–400 см. Меньше 2, больше 400 или ошибка драйвера → OUT OF RANGE."],
+    ["Железо", "Сколько символов и строк на SSD1306 128×64?", "Шрифт 8×8: 16 символов в строке, 8 строк по высоте."],
+    ["Железо", "Адрес OLED и как его проверить?", "0x3C. i2c.scan() вернёт [60]."],
+    ["Железо", "Что делает oled.show()?", "Отправляет буфер кадра на экран. До show() ничего не видно."],
+    ["Железо", "Как ведёт себя MQ-2 при появлении газа?", "Сопротивление падает, напряжение и значение АЦП растут. Нужен прогрев нагревателя."],
+    ["Железо", "Почему WS2812 управляются одним проводом?", "В каждом диоде контроллер: он берёт свои 24 бита из потока и передаёт остальное дальше по цепочке."],
+    ["Железо", "Активный и пассивный зуммер — разница?", "Активный пищит от постоянного уровня, пассивному нужен ШИМ с частотой. Модуль может включаться нулём."],
+    ["Железо", "Сколько памяти у MIFARE S50 и как она устроена?", "1 КБ: 16 секторов × 4 блока × 16 байт. Последний блок сектора — трейлер с ключами."],
+    ["Железо", "Какие блоки нельзя писать?", "Блок 0 (заводской) и трейлеры 3, 7, 11, …, 63."],
+    ["Железо", "Ключ по умолчанию у новой карты?", "Шесть байт 0xFF."],
+    ["Железо", "Что за чип, скорее всего, в A01-AI?", "Kendryte K210 (RISC-V + нейроускоритель KPU), прошивка MaixPy. Проверить на С-1."],
+    ["Протоколы", "I2C — сколько проводов и как различаются устройства?", "SDA и SCL (+ питание). Устройства различаются адресом."],
+    ["Протоколы", "SPI — какие линии у MFRC522?", "SCK, MOSI, MISO, NSS (CS) + отдельный RST."],
+    ["Протоколы", "Что значит UART 115200 8N1?", "115200 бит/с, 8 бит данных, без чётности, 1 стоп-бит."],
+    ["Протоколы", "Как соединить два устройства по UART?", "TX → RX и RX ← TX крест-накрест, общий GND, одинаковая скорость."],
+    ["Протоколы", "Порядок работы с картой?", "SeekCard → Anticoll → select_tag → auth → read/write → stop_crypto1."],
+    ["Протоколы", "Чем 0x52 отличается от 0x26 при поиске карты?", "0x52 (WUPA) будит все карты, включая «уснувшие»; 0x26 (REQA) — только незаснувшие."],
+    ["Протоколы", "Что такое 0x60 в auth()?", "Авторизация ключом A (AUTHENT1A). 0x61 — ключом B."],
+    ["Протоколы", "Протокол C1 одной строкой?", "Камера: OBJ,класс,%\\n не чаще 5/с или NONE\\n раз в секунду; ESP32 отвечает ACK\\n на каждый OBJ."],
+    ["MicroPython", "В каком порядке плата запускает файлы?", "boot.py, потом main.py."],
+    ["MicroPython", "Ctrl+C и Ctrl+D в REPL?", "Ctrl+C — прервать программу. Ctrl+D — мягкая перезагрузка."],
+    ["MicroPython", "Как узнать методы драйвера, если нет документации?", "dir(объект) или открыть .py-файл драйвера в Thonny."],
+    ["MicroPython", "Почему нельзя писать голый except: в главном цикле?", "Он ловит и KeyboardInterrupt — программу не остановить Ctrl+C (а в B2 не вызвать register())."],
+    ["MicroPython", "Зачем global внутри функции?", "Без него присваивание создаёт локальную переменную, глобальная не меняется."],
+    ["MicroPython", "Как сделать «раз в секунду» без sleep?", "Хранить момент следующего события: next_t = ticks_add(now, 1000); сравнивать ticks_diff(now, next_t) >= 0."],
+    ["MicroPython", "Что можно делать в обработчике таймера?", "Минимум: поставить флаг. Работа — в основном цикле."],
+    ["MicroPython", "Как отформатировать 12.44 в «12.4»?", "\"%.1f\" % 12.44"],
+    ["MicroPython", "Как получить HEX «0A» из 10?", "\"%02X\" % 10"],
+    ["MicroPython", "Как превратить строку в байты и обратно?", "\"abc\".encode() и b\"abc\".decode()."],
+    ["MicroPython", "Чего нет в MicroPython re по сравнению с Python?", "Нет re.findall и многих флагов; проще разбирать вручную."],
+    ["ИИ и сеть", "Где текст ответа модели в JSON?", "choices[0].message.content"],
+    ["ИИ и сеть", "Что значат коды 401, 429, 5xx?", "401 — неверный ключ, 429 — превышен лимит запросов, 5xx — ошибка сервиса."],
+    ["ИИ и сеть", "Правила частоты запросов к ИИ?", "Не чаще 1 раза в 5 с; после ошибки не раньше чем через 10 с; ожидание ≤10 с."],
+    ["ИИ и сеть", "Четыре вида строк ИИ в журнале?", "мс,AI_REQ · мс,AI_ANS,значение · мс,AI_ERR,причина · мс,AI_BAD"],
+    ["ИИ и сеть", "Что делать с недопустимым ответом модели?", "Не применять: оставить значение по умолчанию или последнее допустимое, записать AI_BAD."],
+    ["ИИ и сеть", "Зачем temperature 0 и max_tokens 50?", "Предсказуемые короткие ответы, меньше расход и время."],
+    ["ИИ и сеть", "Какие поля в secrets.py?", "WIFI_SSID, WIFI_PASS, API_URL, API_KEY, MODEL."],
+    ["Задания", "Координаты строк в A1?", "y = 0, 14, 28, 42; шкала y = 54. В остальных модулях 0, 16, 32, 48."],
+    ["Задания", "Что показывает экран запуска IIoT?", "IoT STATION XX (y0), WiFi: OK/FAIL (y24), AI: READY/OFFLINE (y40), 2 с."],
+    ["Задания", "Когда горит лампа в A2?", "Light:Low и Motion:YES одновременно; держится HOLD после последнего движения; стало светло — гаснет сразу."],
+    ["Задания", "Когда порог от ИИ в B1 допустим?", "Целое, больше максимума фона и не больше 4000. Иначе THRESHOLD_DEFAULT и «DEF»."],
+    ["Задания", "Формат журнала проходов B2?", "мс,UID,имя,результат,проходы; результаты OK / UNKNOWN / MISMATCH; у отказов «-»."],
+    ["Задания", "Когда в C1 объект выводится на OLED?", "После 3 подряд сообщений с одним и тем же классом."],
+    ["Задания", "Зона WARN в MA: свет и звук?", "Жёлтый; зуммер 200 мс звук / 600 мс пауза."],
+    ["Git", "Как часто коммитить и как назвать финальный коммит?", "Не реже раза в 30 минут; финальный — «A1 final» (по имени модуля) с push до конца времени."],
+    ["Git", "Что нельзя делать в репозитории?", "Force-push, удалять историю, менять папки сданных модулей, класть secrets.py и драйверы."]
+  ];
+  var cats = ["Все"].concat(CARDS.map(function (c) { return c[0]; }).filter(function (c, i, a) { return a.indexOf(c) === i; }));
+  var known = load("iot-cards", {});
+  var cat = "Все", deck = [], idx = 0;
+  var catBox = document.getElementById("card-cats");
+  catBox.innerHTML = cats.map(function (c) {
+    return '<button type="button" class="chip" data-cat="' + c + '" aria-pressed="' + (c === cat) + '">' + c + "</button>";
+  }).join("");
+  function build() {
+    deck = [];
+    CARDS.forEach(function (c, i) { if ((cat === "Все" || c[0] === cat) && !known[i]) deck.push(i); });
+    idx = 0;
+    show();
+  }
+  function show() {
+    var a = document.getElementById("f-a");
+    a.hidden = true;
+    document.getElementById("f-hint").hidden = false;
+    var total = CARDS.filter(function (c) { return cat === "Все" || c[0] === cat; }).length;
+    document.getElementById("f-stat").textContent = "Осталось " + deck.length + " из " + total;
+    if (!deck.length) {
+      document.getElementById("f-cat").textContent = cat;
+      document.getElementById("f-q").textContent = "Все карточки этой категории выучены. Нажми «Начать заново», чтобы пройти ещё раз.";
+      a.textContent = "";
+      document.getElementById("f-hint").hidden = true;
+      return;
+    }
+    var c = CARDS[deck[idx % deck.length]];
+    document.getElementById("f-cat").textContent = c[0];
+    document.getElementById("f-q").textContent = c[1];
+    a.textContent = c[2];
+  }
+  function flip() {
+    if (!deck.length) return;
+    document.getElementById("f-a").hidden = false;
+    document.getElementById("f-hint").hidden = true;
+  }
+  var flash = document.getElementById("flash");
+  flash.addEventListener("click", flip);
+  flash.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flip(); } });
+  document.getElementById("f-know").addEventListener("click", function () {
+    if (!deck.length) return;
+    known[deck[idx % deck.length]] = true;
+    save("iot-cards", known);
+    deck.splice(idx % deck.length, 1);
+    show();
+  });
+  document.getElementById("f-again").addEventListener("click", function () {
+    if (!deck.length) return;
+    deck.push(deck.splice(idx % deck.length, 1)[0]);
+    show();
+  });
+  document.getElementById("f-reset").addEventListener("click", function () {
+    CARDS.forEach(function (c, i) { if (cat === "Все" || c[0] === cat) delete known[i]; });
+    save("iot-cards", known);
+    build();
+  });
+  catBox.addEventListener("click", function (e) {
+    var b = e.target.closest(".chip");
+    if (!b) return;
+    cat = b.dataset.cat;
+    catBox.querySelectorAll(".chip").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+    build();
+  });
+  build();
+
+  decorate(document);
+  route();
+})();
+</script>
