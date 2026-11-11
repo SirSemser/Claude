@@ -562,7 +562,7 @@ Authorization: Bearer &lt;API-ключ&gt;
     <div class="trap"><b>Две разные очереди</b><p>Буфер медианы — 5 значений каждые 200 мс. Для ИИ нужна отдельная история: 10 значений с шагом 0,5 с. Студенты часто отправляют буфер медианы.</p></div>
     <div class="trap"><b>HTTP внутри таймера</b><p>Запрос к ИИ длится до 10 с. Если делать его в обработчике таймера, всё зависнет. Таймер только ставит флаг, работа — в основном цикле.</p></div>
     <div class="trap"><b>Инверсия «залипает»</b><p>После <code>invert(1)</code> надо явно вернуть <code>invert(0)</code>, когда условие пропало (и на экране OUT OF RANGE тоже).</p></div>
-    <div class="trap"><b>Имя метода драйвера</b><p>Задание называет только конструктор <code>HCSR04(tri, ech)</code>. Как называется метод измерения (<code>distance_cm()</code>, <code>getDistance()</code>…), видно только в файле <code>HCSR04.py</code> — открыть в Thonny или <code>dir(sensor)</code>.</p></div>
+    <div class="trap"><b>Имя метода драйвера</b><p>По руководству ZL-02B (табл. 16-1) метод называется <code>distance()</code> и возвращает сантиметры. Конструктор: <code>HCSR04(tri=14, ech=12)</code>.</p></div>
     <details class="code"><summary>Эталонный код: A1/main.py <small>300 строк · IIoT/A1/main.py</small></summary><div class="codebox"><button class="copy" type="button">Копировать</button><pre class="py"># =====================================================================
 #  WSKZ2026 IIoT — Модуль A1. Ультразвуковой дальномер (парктроник)
 #  ESP32 + HC-SR04 + OLED SSD1306 + ИИ-сервис (Chat Completions API)
@@ -751,7 +751,7 @@ def ai_step(now):
 def read_cm():
     &quot;&quot;&quot;Одно измерение в см или None, если некорректно.&quot;&quot;&quot;
     try:
-        d = sensor.distance_cm()   # СВЕРИТЬ имя метода с HCSR04.py (dir(sensor))
+        d = sensor.distance()      # метод из руководства ZL-02B (табл. 16-1)
     except Exception:
         return None                # драйвер вызвал ошибку (тайм-аут эха и т.п.)
     if d is None or d &lt; DIST_MIN or d &gt; DIST_MAX:
@@ -1625,10 +1625,10 @@ i2c = SoftI2C(scl=Pin(PIN_SCL), sda=Pin(PIN_SDA))
 oled = ssd1306.SSD1306_I2C(128, 64, i2c)
 wlan = network.WLAN(network.STA_IF)
 
-# ===== Обёртки драйвера rc522.py — СВЕРИТЬ с файлом драйвера на площадке =====
-rfid = rc522.RC522()                                   # имя класса — сверить
-rfid.Init_spi(PIN_RST, PIN_NSS, PIN_SCK, PIN_MOSI, PIN_MISO)  # порядок — сверить
-MI_OK = rc522.MI_OK if hasattr(rc522, &quot;MI_OK&quot;) else rfid.MI_OK
+# ===== Обёртки драйвера rc522.py (API по руководству ZL-02B, опыт 4.21) =====
+rfid = rc522.MFRC522()                                 # как в руководстве ZL-02B, опыт 4.21
+rfid.Init_spi(rst=PIN_RST, nss=PIN_NSS, sck=Pin(PIN_SCK), mosi=Pin(PIN_MOSI), miso=Pin(PIN_MISO))
+MI_OK = rfid.MI_OK
 
 
 def card_seek():
@@ -2523,7 +2523,7 @@ def led_test():
 
 def read_cm():
     try:
-        d = sensor.distance_cm()   # СВЕРИТЬ имя метода с HCSR04.py
+        d = sensor.distance()      # метод из руководства ZL-02B (табл. 16-1)
     except Exception:
         return None
     if d is None or d &lt; DIST_MIN or d &gt; DIST_MAX:
@@ -2676,9 +2676,9 @@ DATA = b&quot;\x01\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x55&q
 # ---------------- Оборудование ----------------
 i2c = SoftI2C(scl=Pin(PIN_SCL), sda=Pin(PIN_SDA))
 oled = ssd1306.SSD1306_I2C(128, 64, i2c)
-rfid = rc522.RC522()                                   # СВЕРИТЬ с драйвером
-rfid.Init_spi(PIN_RST, PIN_NSS, PIN_SCK, PIN_MOSI, PIN_MISO)
-MI_OK = rc522.MI_OK if hasattr(rc522, &quot;MI_OK&quot;) else rfid.MI_OK
+rfid = rc522.MFRC522()                                 # как в руководстве ZL-02B, опыт 4.21
+rfid.Init_spi(rst=PIN_RST, nss=PIN_NSS, sck=Pin(PIN_SCK), mosi=Pin(PIN_MOSI), miso=Pin(PIN_MISO))
+MI_OK = rfid.MI_OK
 
 
 def show(text):

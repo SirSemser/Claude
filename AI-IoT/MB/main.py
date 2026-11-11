@@ -26,9 +26,9 @@ DATA = b"\x01\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x55"
 # ---------------- Оборудование ----------------
 i2c = SoftI2C(scl=Pin(PIN_SCL), sda=Pin(PIN_SDA))
 oled = ssd1306.SSD1306_I2C(128, 64, i2c)
-rfid = rc522.RC522()                                   # СВЕРИТЬ с драйвером
-rfid.Init_spi(PIN_RST, PIN_NSS, PIN_SCK, PIN_MOSI, PIN_MISO)
-MI_OK = rc522.MI_OK if hasattr(rc522, "MI_OK") else rfid.MI_OK
+rfid = rc522.MFRC522()                                 # как в руководстве ZL-02B, опыт 4.21
+rfid.Init_spi(rst=PIN_RST, nss=PIN_NSS, sck=Pin(PIN_SCK), mosi=Pin(PIN_MOSI), miso=Pin(PIN_MISO))
+MI_OK = rfid.MI_OK
 
 
 def show(text):

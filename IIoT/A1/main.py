@@ -186,7 +186,7 @@ def ai_step(now):
 def read_cm():
     """Одно измерение в см или None, если некорректно."""
     try:
-        d = sensor.distance_cm()   # СВЕРИТЬ имя метода с HCSR04.py (dir(sensor))
+        d = sensor.distance()      # метод из руководства ZL-02B (табл. 16-1)
     except Exception:
         return None                # драйвер вызвал ошибку (тайм-аут эха и т.п.)
     if d is None or d < DIST_MIN or d > DIST_MAX:

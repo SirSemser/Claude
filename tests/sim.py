@@ -236,7 +236,7 @@ class FakeHCSR04:
     def __init__(self, tri, ech):
         pass
 
-    def distance_cm(self):
+    def distance(self):
         return SIM.distance(SIM.now)
 
 
@@ -255,8 +255,8 @@ class FakeRC522:
     def __init__(self):
         self.authed = False
 
-    def Init_spi(self, *pins):
-        pass
+    def Init_spi(self, rst, nss, sck, mosi, miso):
+        assert isinstance(sck, FakePin) and isinstance(miso, FakePin)
 
     def _card(self):
         return SIM.rfid(SIM.now) if SIM.rfid else None
@@ -322,7 +322,7 @@ def install(limit_ms):
     hc.HCSR04 = FakeHCSR04
     mods["HCSR04"] = hc
     rc = types.ModuleType("rc522")
-    rc.RC522 = FakeRC522
+    rc.MFRC522 = FakeRC522
     rc.MI_OK = 0
     mods["rc522"] = rc
     req = types.ModuleType("requests")

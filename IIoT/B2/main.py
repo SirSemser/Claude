@@ -58,10 +58,10 @@ i2c = SoftI2C(scl=Pin(PIN_SCL), sda=Pin(PIN_SDA))
 oled = ssd1306.SSD1306_I2C(128, 64, i2c)
 wlan = network.WLAN(network.STA_IF)
 
-# ===== Обёртки драйвера rc522.py — СВЕРИТЬ с файлом драйвера на площадке =====
-rfid = rc522.RC522()                                   # имя класса — сверить
-rfid.Init_spi(PIN_RST, PIN_NSS, PIN_SCK, PIN_MOSI, PIN_MISO)  # порядок — сверить
-MI_OK = rc522.MI_OK if hasattr(rc522, "MI_OK") else rfid.MI_OK
+# ===== Обёртки драйвера rc522.py (API по руководству ZL-02B, опыт 4.21) =====
+rfid = rc522.MFRC522()                                 # как в руководстве ZL-02B, опыт 4.21
+rfid.Init_spi(rst=PIN_RST, nss=PIN_NSS, sck=Pin(PIN_SCK), mosi=Pin(PIN_MOSI), miso=Pin(PIN_MISO))
+MI_OK = rfid.MI_OK
 
 
 def card_seek():

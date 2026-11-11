@@ -76,7 +76,7 @@ def led_test():
 
 def read_cm():
     try:
-        d = sensor.distance_cm()   # СВЕРИТЬ имя метода с HCSR04.py
+        d = sensor.distance()      # метод из руководства ZL-02B (табл. 16-1)
     except Exception:
         return None
     if d is None or d < DIST_MIN or d > DIST_MAX:
