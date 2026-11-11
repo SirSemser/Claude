@@ -1,0 +1,15 @@
+<section id="brackets" style="background:#F5F4EF;color:#18202A;font-family:'Inter', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#1F7A45">Condition</p>
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:700;line-height:1.1;color:#18202A">[[ ]], (( )) и короткие условия</h2>
+</div>
+<div style="background:#12181F;border-radius:20px;padding:32px 40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:27px;line-height:1.6;color:#E8EDF2">[[ $name == A* ]] &amp;&amp; echo <span style="color:#8EE3A9">"Имя на A"</span><span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;# шаблон</span><br>[[ $email =~ ^[a-z]+@[a-z]+\.kz$ ]] &amp;&amp; echo OK<span style="color:#8A97A6">&#160;# регулярное выражение</span><br>[[ $age -ge 18 &amp;&amp; $age -le 25 ]]<span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;# &amp;&amp; внутри скобок</span><br>(( age &gt;= 18 )) &amp;&amp; echo <span style="color:#8EE3A9">"взрослый"</span><span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;# арифметика</span><br>mkdir backup &amp;&amp; cd backup<span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;# если успешно</span><br>cd /nope || echo <span style="color:#8EE3A9">"нет такой папки"</span><span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;# если ошибка</span></p>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:28px">
+<div style="display:flex;flex-direction:column;gap:8px"><h3 style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;font-weight:700;color:#1F7A45">[ ]</h3><p style="font-size:26px;line-height:1.4;color:#4A5563">Классика POSIX, работает в любой оболочке.</p></div>
+<div style="display:flex;flex-direction:column;gap:8px"><h3 style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;font-weight:700;color:#1F7A45">[[ ]]</h3><p style="font-size:26px;line-height:1.4;color:#4A5563">Только bash: шаблоны, =~, &amp;&amp; и || внутри, меньше проблем с кавычками.</p></div>
+<div style="display:flex;flex-direction:column;gap:8px"><h3 style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;font-weight:700;color:#1F7A45">(( ))</h3><p style="font-size:26px;line-height:1.4;color:#4A5563">Сравнение чисел привычными знаками &lt; &gt; == и без $.</p></div>
+</div>
+<aside>Двойные квадратные скобки — расширение bash: внутри можно сравнивать с шаблоном (A*), с регулярным выражением (=~) и использовать &amp;&amp; и ||. Двойные круглые скобки — для чисел. Цепочки команда1 &amp;&amp; команда2 и команда1 || команда2 — короткая запись if для одной команды. В задании I2 регулярные выражения проверяют надёжность пароля.</aside>
+</section>

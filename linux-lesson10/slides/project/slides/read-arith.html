@@ -1,0 +1,17 @@
+<section id="read-arith" style="background:#F5F4EF;color:#18202A;font-family:'Inter', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#1F7A45">Variable</p>
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:700;line-height:1.1;color:#18202A">Ввод с клавиатуры и арифметика</h2>
+</div>
+<div style="display:grid;grid-template-columns:1.5fr 1fr;gap:44px;align-items:start">
+<div style="background:#12181F;border-radius:20px;padding:30px 36px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px;line-height:1.55;color:#E8EDF2">read -p <span style="color:#8EE3A9">"Введите имя: "</span> name<br>read -r a b<span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;# два слова → две переменные</span><br>echo $(( a + b ))&#160;&#160;$(( a * b ))<br>echo $(( 17 / 5 ))<span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;&#160;# 3 — деление целое</span><br>echo $(( 17 % 5 ))<span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;&#160;# 2 — остаток</span><br>echo $(( 2 ** 10 ))<span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;# 1024 — степень</span><br>(( count++ ))<span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;# увеличить на 1</span><br>let total=a+b<br>echo <span style="color:#8EE3A9">"scale=2; 10/3"</span> | bc<span style="color:#8A97A6">&#160;# 3.33</span></p>
+</div>
+<div style="display:flex;flex-direction:column;gap:22px">
+<p style="font-size:28px;line-height:1.45;color:#4A5563"><b>read</b> ждёт строку со стандартного ввода и раскладывает слова по переменным.</p>
+<p style="font-size:28px;line-height:1.45;color:#4A5563">Внутри <b>$(( ))</b> переменные пишут без $, пробелы можно ставить свободно.</p>
+<p style="font-size:28px;line-height:1.45;color:#4A5563">Bash считает только <b>целые</b> числа. Для дробей — команда <b>bc</b>.</p>
+</div>
+</div>
+<aside>read -p выводит подсказку, -r отключает обработку обратной косой черты — так безопаснее. Деление в bash всегда целочисленное: 17/5 даёт 3. Остаток от деления (%) пригодится для проверки чётности. Старые формы expr и $[ ] тоже встречаются в учебниках, но современный вариант — $(( )).</aside>
+</section>

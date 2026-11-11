@@ -1,0 +1,14 @@
+<section id="debug" style="background:#F5F4EF;color:#18202A;font-family:'Inter', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#1F7A45">Практика</p>
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:700;line-height:1.1;color:#18202A">Отладка и хорошие привычки</h2>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:28px">
+<div style="background:#FFFFFF;border:1px solid #DDE2E7;border-radius:18px;padding:28px 32px;display:flex;flex-direction:column;gap:10px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;font-weight:700;color:#1F7A45">bash -x script.sh</p><p style="font-size:26px;line-height:1.4;color:#4A5563">Печатает каждую команду с уже подставленными значениями. Внутри скрипта: set -x … set +x.</p></div>
+<div style="background:#FFFFFF;border:1px solid #DDE2E7;border-radius:18px;padding:28px 32px;display:flex;flex-direction:column;gap:10px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;font-weight:700;color:#1F7A45">bash -n script.sh</p><p style="font-size:26px;line-height:1.4;color:#4A5563">Только проверка синтаксиса, без выполнения.</p></div>
+<div style="background:#FFFFFF;border:1px solid #DDE2E7;border-radius:18px;padding:28px 32px;display:flex;flex-direction:column;gap:10px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;font-weight:700;color:#1F7A45">set -euo pipefail</p><p style="font-size:26px;line-height:1.4;color:#4A5563">Остановиться при ошибке команды, при пустой переменной и при сбое в конвейере.</p></div>
+<div style="background:#FFFFFF;border:1px solid #DDE2E7;border-radius:18px;padding:28px 32px;display:flex;flex-direction:column;gap:10px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;font-weight:700;color:#1F7A45">shellcheck.net</p><p style="font-size:26px;line-height:1.4;color:#4A5563">Онлайн-проверка скрипта: находит типичные ошибки и объясняет их. Устанавливать ничего не нужно.</p></div>
+</div>
+<p style="font-size:28px;line-height:1.45;color:#18202A;background:#FFFFFF;border-left:6px solid #1F7A45;padding:18px 26px;border-radius:8px">Привычки: "$переменные" в кавычках · понятные имена · комментарии «зачем» · exit 0 при успехе и exit 1 при ошибке.</p>
+<aside>bash -x — главный инструмент отладки: видно, какие значения подставились и по какой ветке пошёл скрипт. Покажите его на скрипте с ошибкой в условии. В учебном терминале лабораторной bash -x тоже работает. ShellCheck — бесплатный анализатор, на сайте shellcheck.net достаточно вставить текст скрипта.</aside>
+</section>

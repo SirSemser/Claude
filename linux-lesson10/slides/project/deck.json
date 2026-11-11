@@ -1,0 +1,37 @@
+{
+  "v": 4,
+  "createdOnFiles": { "v": 1, "at": "2026-11-11T06:25:29Z" },
+  "lists": "css",
+  "title": "Урок 10. Bash Shell Scripting",
+  "cover": "cover",
+  "order": [
+    "cover", "syllabus-lecture", "syllabus-lab", "plan",
+    "shell", "cli-gui", "shell-types", "shell-info", "alias",
+    "interpreted", "first-script", "run-ways", "comments",
+    "variables", "special-vars", "read-arith",
+    "if", "test-ops", "brackets",
+    "strings",
+    "for", "while",
+    "case", "functions",
+    "arrays",
+    "debug", "full-example", "cheatsheet", "lab", "questions"
+  ],
+  "sections": {
+    "s1": { "description": "Вступление: место урока в курсе и план", "start": "cover" },
+    "s2": { "description": "Оболочка: что это, виды оболочек, alias", "start": "shell" },
+    "s3": { "description": "Первые скрипты: shebang, права, способы запуска, комментарии", "start": "interpreted" },
+    "s4": { "description": "Переменные, аргументы, ввод и арифметика", "start": "variables" },
+    "s5": { "description": "Условия: if, test, [[ ]], (( ))", "start": "if" },
+    "s6": { "description": "Операции со строками", "start": "strings" },
+    "s7": { "description": "Циклы for, while, until", "start": "for" },
+    "s8": { "description": "case и функции", "start": "case" },
+    "s9": { "description": "Массивы", "start": "arrays" },
+    "s10": { "description": "Отладка, итоговый пример, шпаргалка и лабораторная работа", "start": "debug" }
+  },
+  "faces": {
+    "rubik": { "family": "Rubik", "href": "https://fonts.googleapis.com/css2?family=Rubik:wght@400..700&display=swap" },
+    "inter": { "family": "Inter", "href": "https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" },
+    "jetbrains-mono": { "family": "JetBrains Mono", "href": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" }
+  },
+  "designSystems": []
+}

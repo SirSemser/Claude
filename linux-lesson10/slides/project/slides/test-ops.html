@@ -1,0 +1,24 @@
+<section id="test-ops" style="background:#F5F4EF;color:#18202A;font-family:'Inter', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#1F7A45">Condition</p>
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:700;line-height:1.1;color:#18202A">Операторы сравнения</h2>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:28px">
+<div style="background:#FFFFFF;border:1px solid #DDE2E7;border-radius:18px;padding:28px 30px;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:34px;font-weight:600;color:#18202A">Числа</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px;line-height:1.7;color:#18202A"><span style="color:#1F7A45">-eq</span>&#160;&#160;равно<br><span style="color:#1F7A45">-ne</span>&#160;&#160;не равно<br><span style="color:#1F7A45">-lt</span>&#160;&#160;меньше<br><span style="color:#1F7A45">-le</span>&#160;&#160;меньше или равно<br><span style="color:#1F7A45">-gt</span>&#160;&#160;больше<br><span style="color:#1F7A45">-ge</span>&#160;&#160;больше или равно</p>
+</div>
+<div style="background:#FFFFFF;border:1px solid #DDE2E7;border-radius:18px;padding:28px 30px;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:34px;font-weight:600;color:#18202A">Строки</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px;line-height:1.7;color:#18202A"><span style="color:#1F7A45">=</span>&#160;&#160;&#160;&#160;равны<br><span style="color:#1F7A45">!=</span>&#160;&#160;&#160;не равны<br><span style="color:#1F7A45">-z</span>&#160;&#160;&#160;пустая<br><span style="color:#1F7A45">-n</span>&#160;&#160;&#160;не пустая<br><span style="color:#1F7A45">\&lt; \&gt;</span>&#160;по алфавиту</p>
+</div>
+<div style="background:#FFFFFF;border:1px solid #DDE2E7;border-radius:18px;padding:28px 30px;display:flex;flex-direction:column;gap:12px">
+<h3 style="font-family:'Rubik', Arial, sans-serif;font-size:34px;font-weight:600;color:#18202A">Файлы</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px;line-height:1.7;color:#18202A"><span style="color:#1F7A45">-e</span>&#160;&#160;существует<br><span style="color:#1F7A45">-f</span>&#160;&#160;обычный файл<br><span style="color:#1F7A45">-d</span>&#160;&#160;каталог<br><span style="color:#1F7A45">-r -w -x</span>&#160;права<br><span style="color:#1F7A45">-s</span>&#160;&#160;не пустой</p>
+</div>
+</div>
+<div style="background:#12181F;border-radius:18px;padding:24px 32px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px;line-height:1.55;color:#E8EDF2">[ -f data.txt ] &amp;&amp; [ <span style="color:#8EE3A9">"$n"</span> -gt 0 ]<span style="color:#8A97A6">&#160;&#160;&#160;# И</span><br>[ ! -d backup ] || echo <span style="color:#8EE3A9">"есть"</span><span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;&#160;# НЕ, ИЛИ</span></p>
+</div>
+<aside>Частая путаница: для чисел используют буквенные операторы (-eq, -lt), а = и != — для строк. Знаки &lt; и &gt; внутри [ ] нужно экранировать, иначе bash примет их за перенаправление. Логические связки: &amp;&amp; (и), || (или), ! (не). Внутри одной пары [ ] старые варианты -a и -o тоже работают.</aside>
+</section>

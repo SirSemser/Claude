@@ -1,0 +1,22 @@
+<section id="arrays" style="background:#F5F4EF;color:#18202A;font-family:'Inter', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#1F7A45">Array</p>
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:700;line-height:1.1;color:#18202A">Массивы</h2>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:start">
+<div style="display:flex;flex-direction:column;gap:14px">
+<p style="font-size:28px;font-weight:600;color:#18202A">Обычный (индексы 0, 1, 2…)</p>
+<div style="background:#12181F;border-radius:20px;padding:28px 32px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:25px;line-height:1.6;color:#E8EDF2">colors=(red green blue)<br>echo ${colors[0]}<span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;# red</span><br>echo ${colors[@]}<span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;# все</span><br>echo ${#colors[@]}<span style="color:#8A97A6">&#160;&#160;&#160;&#160;# 3</span><br>colors+=(white)<span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;&#160;&#160;# добавить</span><br>echo ${!colors[@]}<span style="color:#8A97A6">&#160;&#160;&#160;&#160;# 0 1 2 3</span><br><span style="color:#F2B134">for</span> c <span style="color:#F2B134">in</span> <span style="color:#8EE3A9">"${colors[@]}"</span>; <span style="color:#F2B134">do</span><br>&#160;&#160;&#160;&#160;echo $c<br><span style="color:#F2B134">done</span></p>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:14px">
+<p style="font-size:28px;font-weight:600;color:#18202A">Ассоциативный (ключ → значение)</p>
+<div style="background:#12181F;border-radius:20px;padding:28px 32px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:25px;line-height:1.6;color:#E8EDF2"><span style="color:#F2B134">declare</span> -A age<br>age[ali]=20<br>age[dana]=19<br>echo ${age[dana]}<span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;# 19</span><br>echo ${!age[@]}<span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;&#160;&#160;# ключи</span><br>echo ${#age[@]}<span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;&#160;&#160;# 2</span></p>
+</div>
+<p style="font-size:26px;line-height:1.4;color:#4A5563">Порядок ключей не гарантирован — для вывода используйте sort.</p>
+</div>
+</div>
+<aside>Массив хранит много значений под одним именем. Обычный массив нумеруется с нуля; "${arr[@]}" в кавычках — правильный способ перебрать элементы, даже если в них есть пробелы. Аргументы скрипта легко сохранить в массив: nums=("$@"). Ассоциативный массив (bash 4+) объявляется обязательно через declare -A. Задания H1–H3.</aside>
+</section>

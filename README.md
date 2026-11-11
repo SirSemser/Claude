@@ -45,3 +45,9 @@ python3 tests/run_all.py
 ```bash
 python3 guide/build.py            # -> guide/index.html
 ```
+
+## Linux · Урок 10 (Bash Shell Scripting)
+
+Папка `linux-lesson10/`: презентация на русском и лабораторная работа в одном HTML-файле
+(`linux-lesson10/dist/lab10_bash.html`) с симулятором терминала, автопроверкой и режимом преподавателя.
+Подробности — `linux-lesson10/README.md`.

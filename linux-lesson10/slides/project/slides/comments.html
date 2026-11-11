@@ -1,0 +1,23 @@
+<section id="comments" style="background:#F5F4EF;color:#18202A;font-family:'Inter', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#1F7A45">Comment</p>
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:700;line-height:1.1;color:#18202A">Скрипт с комментариями</h2>
+</div>
+<div style="display:grid;grid-template-columns:1.45fr 1fr;gap:44px;align-items:start">
+<div style="display:flex;flex-direction:column;gap:20px">
+<div style="background:#12181F;border-radius:20px;padding:32px 36px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:27px;line-height:1.55;color:#E8EDF2"><span style="color:#F2B134">#!/bin/bash</span><br>mkdir -p dir1<br><span style="color:#8A97A6"># This is a Bash comment</span><br>echo 'Welcome to Almaty!' &gt; dir1/file1.txt<br>ls -l dir1<span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;# listing the directory</span><br>cat dir1/file1.txt<span style="color:#8A97A6">&#160;# file contents</span></p>
+</div>
+<div style="background:#12181F;border-radius:16px;padding:22px 30px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px;line-height:1.55;color:#E8EDF2"><span style="color:#3FB868">$</span> chmod +x script2.sh<br><span style="color:#3FB868">$</span> ./script2.sh</p></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:24px">
+<p style="font-size:28px;line-height:1.45;color:#4A5563">Комментарий начинается с <b>#</b> и продолжается до конца строки — bash его пропускает.</p>
+<p style="font-size:28px;line-height:1.45;color:#4A5563">Shebang тоже начинается с #, но это инструкция для системы, а не комментарий.</p>
+<div style="display:flex;flex-direction:column;gap:10px">
+<p style="font-size:26px;font-weight:600;color:#18202A">Несколько строк сразу:</p>
+<div style="background:#12181F;border-radius:14px;padding:18px 24px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;line-height:1.55;color:#8A97A6">: '<br>Это блок,<br>который bash не выполнит<br>'</p></div>
+</div>
+</div>
+</div>
+<aside>Пример со слайда исходной презентации. Комментарии объясняют, зачем нужна команда, а не пересказывают её. Многострочный «комментарий» через : '...' — это на самом деле пустая команда : со строкой-аргументом; работает, пока внутри нет одинарных кавычек. В лабораторной это задание T5.</aside>
+</section>

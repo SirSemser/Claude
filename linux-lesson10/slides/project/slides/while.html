@@ -1,0 +1,17 @@
+<section id="while" style="background:#F5F4EF;color:#18202A;font-family:'Inter', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#1F7A45">Loop</p>
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:700;line-height:1.1;color:#18202A">Циклы while и until</h2>
+</div>
+<div style="display:grid;grid-template-columns:1.25fr 1fr;gap:44px;align-items:start">
+<div style="background:#12181F;border-radius:20px;padding:30px 36px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px;line-height:1.6;color:#E8EDF2">n=1<br><span style="color:#F2B134">while</span> [ $n -le 3 ]; <span style="color:#F2B134">do</span><br>&#160;&#160;&#160;&#160;echo <span style="color:#8EE3A9">"Шаг $n"</span><br>&#160;&#160;&#160;&#160;n=$((n + 1))<span style="color:#8A97A6">&#160;&#160;&#160;# без этого — бесконечно</span><br><span style="color:#F2B134">done</span><br><br><span style="color:#F2B134">until</span> [ $n -eq 0 ]; <span style="color:#F2B134">do</span> ((n--)); <span style="color:#F2B134">done</span><br><br><span style="color:#8A97A6"># чтение файла построчно</span><br><span style="color:#F2B134">while</span> read -r name score; <span style="color:#F2B134">do</span><br>&#160;&#160;&#160;&#160;echo <span style="color:#8EE3A9">"$name: $score"</span><br><span style="color:#F2B134">done</span> &lt; students.txt</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:20px">
+<div style="background:#FFFFFF;border:1px solid #DDE2E7;border-radius:16px;padding:22px 26px;display:flex;flex-direction:column;gap:6px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;font-weight:700;color:#1F7A45">while</p><p style="font-size:26px;line-height:1.4;color:#4A5563">повторяет, пока условие истинно</p></div>
+<div style="background:#FFFFFF;border:1px solid #DDE2E7;border-radius:16px;padding:22px 26px;display:flex;flex-direction:column;gap:6px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;font-weight:700;color:#1F7A45">until</p><p style="font-size:26px;line-height:1.4;color:#4A5563">повторяет, пока условие ложно</p></div>
+<div style="background:#FFFFFF;border:1px solid #DDE2E7;border-radius:16px;padding:22px 26px;display:flex;flex-direction:column;gap:6px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;font-weight:700;color:#1F7A45">break · continue</p><p style="font-size:26px;line-height:1.4;color:#4A5563">выйти из цикла · перейти к следующему шагу</p></div>
+</div>
+</div>
+<aside>Самая частая ошибка — забыть изменить счётчик: цикл становится бесконечным, выход — Ctrl+C. В лабораторной симулятор сам остановит скрипт через 4 секунды. Конструкция while read ... done &lt; файл — стандартный способ обработать файл построчно; read раскладывает слова строки по переменным. Задания E2 и E3.</aside>
+</section>

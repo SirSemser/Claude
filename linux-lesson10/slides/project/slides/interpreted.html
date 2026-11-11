@@ -1,0 +1,29 @@
+<section id="interpreted" style="background:#F5F4EF;color:#18202A;font-family:'Inter', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:44px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#1F7A45">Скрипты</p>
+<h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:700;line-height:1.1;color:#18202A">Как выполняется скрипт</h2>
+</div>
+<div style="display:flex;flex-direction:column;gap:14px">
+<p style="font-size:28px;font-weight:600;color:#4A5563">Компилируемые языки: C, C++, Go</p>
+<div style="display:flex;align-items:center;gap:20px">
+<div style="background:#FFFFFF;border:2px solid #C9D1DA;border-radius:14px;padding:18px 28px"><p style="font-size:28px;color:#18202A">Исходный код</p></div>
+<x-shape kind="arrow-right" style="width:56px;height:28px;background:#9AA6B2"></x-shape>
+<div style="background:#FFFFFF;border:2px solid #C9D1DA;border-radius:14px;padding:18px 28px"><p style="font-size:28px;color:#18202A">Компилятор</p></div>
+<x-shape kind="arrow-right" style="width:56px;height:28px;background:#9AA6B2"></x-shape>
+<div style="background:#FFFFFF;border:2px solid #C9D1DA;border-radius:14px;padding:18px 28px"><p style="font-size:28px;color:#18202A">Машинный код</p></div>
+<x-shape kind="arrow-right" style="width:56px;height:28px;background:#9AA6B2"></x-shape>
+<div style="background:#FFFFFF;border:2px solid #C9D1DA;border-radius:14px;padding:18px 28px"><p style="font-size:28px;color:#18202A">Запуск</p></div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:14px">
+<p style="font-size:28px;font-weight:600;color:#1F7A45">Интерпретируемые: Bash, Python</p>
+<div style="display:flex;align-items:center;gap:20px">
+<div style="background:#E6F2EA;border:2px solid #4FAF75;border-radius:14px;padding:18px 28px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#14532F">script.sh</p></div>
+<x-shape kind="arrow-right" style="width:56px;height:28px;background:#4FAF75"></x-shape>
+<div style="background:#12181F;border-radius:14px;padding:18px 28px"><p style="font-size:28px;color:#E8EDF2">Интерпретатор bash читает и выполняет команду за командой</p></div>
+</div>
+</div>
+<p style="font-size:26px;color:#4A5563">Java — смешанный путь: компилятор → байт-код → виртуальная машина JVM.</p>
+<p style="font-size:30px;line-height:1.4;color:#18202A;background:#FFFFFF;border-left:6px solid #1F7A45;padding:18px 26px;border-radius:8px">Bash не проверяет скрипт целиком заранее: команды до ошибки успеют выполниться.</p>
+<aside>Скрипт bash не компилируется, его построчно читает интерпретатор. Отсюда практический вывод: синтаксическая ошибка в середине скрипта проявится только тогда, когда bash до неё дойдёт, а команды выше уже выполнятся. Поэтому перед запуском «опасных» скриптов полезно проверить синтаксис: bash -n script.sh.</aside>
+</section>
