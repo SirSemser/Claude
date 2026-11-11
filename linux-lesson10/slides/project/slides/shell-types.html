@@ -1,17 +1,17 @@
 <section id="shell-types" style="background:#F5F4EF;color:#18202A;font-family:'Inter', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
 <div style="display:flex;flex-direction:column;gap:12px">
-<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#1F7A45">Оболочка</p>
+<p style="font-family:'Roboto Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#1F7A45">Оболочка</p>
 <h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:700;line-height:1.1;color:#18202A">Виды оболочек</h2>
 </div>
 <table style="font-size:28px;color:#18202A;font-family:'Inter', Arial, sans-serif">
 <tr><th style="width:22%">Оболочка</th><th style="width:22%">Семейство</th><th style="width:56%">Где встречается</th></tr>
-<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace;color:#1F7A45">sh</td><td>Bourne</td><td>Исходная оболочка Unix; стандарт POSIX sh</td></tr>
-<tr style="background:#DCEFE3"><td style="font-family:'JetBrains Mono', 'Courier New', monospace;color:#1F7A45">bash</td><td>Bourne</td><td>По умолчанию в Ubuntu, Debian, Fedora, RHEL, Rocky</td></tr>
-<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace;color:#1F7A45">dash</td><td>Bourne</td><td>Быстрый /bin/sh в Debian и Ubuntu</td></tr>
-<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace;color:#1F7A45">ksh</td><td>Bourne</td><td>Korn shell: коммерческие Unix (AIX)</td></tr>
-<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace;color:#1F7A45">zsh</td><td>Bourne</td><td>По умолчанию в macOS, популярна у разработчиков</td></tr>
-<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace;color:#1F7A45">csh, tcsh</td><td>C shell</td><td>Синтаксис похож на язык C; исторически BSD</td></tr>
-<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace;color:#1F7A45">fish</td><td>Отдельно</td><td>Подсказки «из коробки», но не совместима с POSIX</td></tr>
+<tr><td style="font-family:'Roboto Mono', 'Courier New', monospace;color:#1F7A45">sh</td><td>Bourne</td><td>Исходная оболочка Unix; стандарт POSIX sh</td></tr>
+<tr style="background:#DCEFE3"><td style="font-family:'Roboto Mono', 'Courier New', monospace;color:#1F7A45">bash</td><td>Bourne</td><td>По умолчанию в Ubuntu, Debian, Fedora, RHEL, Rocky</td></tr>
+<tr><td style="font-family:'Roboto Mono', 'Courier New', monospace;color:#1F7A45">dash</td><td>Bourne</td><td>Быстрый /bin/sh в Debian и Ubuntu</td></tr>
+<tr><td style="font-family:'Roboto Mono', 'Courier New', monospace;color:#1F7A45">ksh</td><td>Bourne</td><td>Korn shell: коммерческие Unix (AIX)</td></tr>
+<tr><td style="font-family:'Roboto Mono', 'Courier New', monospace;color:#1F7A45">zsh</td><td>Bourne</td><td>По умолчанию в macOS, популярна у разработчиков</td></tr>
+<tr><td style="font-family:'Roboto Mono', 'Courier New', monospace;color:#1F7A45">csh, tcsh</td><td>C shell</td><td>Синтаксис похож на язык C; исторически BSD</td></tr>
+<tr><td style="font-family:'Roboto Mono', 'Courier New', monospace;color:#1F7A45">fish</td><td>Отдельно</td><td>Подсказки «из коробки», но не совместима с POSIX</td></tr>
 </table>
 <p style="font-size:26px;color:#4A5563">Скрипт, написанный по стандарту POSIX, работает в любой оболочке семейства Bourne.</p>
 <aside>Две большие ветки: Bourne (sh, bash, dash, ksh, zsh) и C shell (csh, tcsh). Bash — расширенный Bourne shell, поэтому почти все скрипты для sh работают и в bash, но не наоборот. В Ubuntu /bin/sh — это dash, поэтому скрипт с bash-синтаксисом нужно запускать именно через bash (shebang #!/bin/bash).</aside>

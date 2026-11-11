@@ -25,7 +25,8 @@
 
 ## Презентация
 
-Исходники слайдов — `slides/project/` (30 слайдов, заметки докладчика к каждому).
+Готовые файлы: `slides/Урок_10_Bash_Shell_Scripting.pptx` (PowerPoint, заметки докладчика к каждому слайду) и
+`slides/Урок_10_Bash_Shell_Scripting.pdf`. Исходники слайдов — `slides/project/` (30 слайдов).
 Опубликованная версия с выгрузкой в PowerPoint и PDF: https://claude.ai/artifact/TP63eBSez1Zgpaey5hkrf4
 
 ## Устройство лабораторной

@@ -1,15 +1,15 @@
 <section id="alias" style="background:#F5F4EF;color:#18202A;font-family:'Inter', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
 <div style="display:flex;flex-direction:column;gap:12px">
-<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#1F7A45">Alias</p>
+<p style="font-family:'Roboto Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#1F7A45">Alias</p>
 <h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:700;line-height:1.1;color:#18202A">Alias — короткое имя для команды</h2>
 </div>
 <div style="display:grid;grid-template-columns:1.35fr 1fr;gap:40px;align-items:start">
 <div style="background:#12181F;border-radius:20px;padding:32px 36px">
-<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px;line-height:1.55;color:#E8EDF2"><span style="color:#3FB868">$</span> alias<span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;# список всех</span><br><span style="color:#3FB868">$</span> alias c='clear'<span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;&#160;# создать</span><br><span style="color:#3FB868">$</span> alias ll='ls -l'<br><span style="color:#3FB868">$</span> alias ping='ping -c4'<br><span style="color:#3FB868">$</span> alias sshconfig='sudo vim /etc/ssh/sshd_config'<br><span style="color:#3FB868">$</span> unalias c<span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;# удалить</span><br><span style="color:#3FB868">$</span> type ll<br><span style="color:#A9B4C0">ll is aliased to `ls -l'</span></p>
+<p style="font-family:'Roboto Mono', 'Courier New', monospace;font-size:26px;line-height:1.55;color:#E8EDF2"><span style="color:#3FB868">$</span> alias<span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;# список всех</span><br><span style="color:#3FB868">$</span> alias c='clear'<span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;&#160;# создать</span><br><span style="color:#3FB868">$</span> alias ll='ls -l'<br><span style="color:#3FB868">$</span> alias ping='ping -c4'<br><span style="color:#3FB868">$</span> alias sshconfig='sudo vim /etc/ssh/sshd_config'<br><span style="color:#3FB868">$</span> unalias c<span style="color:#8A97A6">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;# удалить</span><br><span style="color:#3FB868">$</span> type ll<br><span style="color:#A9B4C0">ll is aliased to `ls -l'</span></p>
 </div>
 <div style="display:flex;flex-direction:column;gap:20px">
 <h3 style="font-family:'Rubik', Arial, sans-serif;font-size:36px;font-weight:600;color:#18202A">Чтобы алиас сохранился</h3>
-<div style="background:#12181F;border-radius:16px;padding:22px 26px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;line-height:1.55;color:#E8EDF2"><span style="color:#3FB868">$</span> echo "alias ll='ls -l'" &gt;&gt; ~/.bashrc<br><span style="color:#3FB868">$</span> source ~/.bashrc</p></div>
+<div style="background:#12181F;border-radius:16px;padding:22px 26px"><p style="font-family:'Roboto Mono', 'Courier New', monospace;font-size:24px;line-height:1.55;color:#E8EDF2"><span style="color:#3FB868">$</span> echo "alias ll='ls -l'" &gt;&gt; ~/.bashrc<br><span style="color:#3FB868">$</span> source ~/.bashrc</p></div>
 <ul style="font-size:26px;line-height:1.45;color:#4A5563;padding:0 0 0 30px">
 <li>без ~/.bashrc алиас пропадёт после закрытия терминала</li>
 <li>вокруг = не ставим пробелы</li>

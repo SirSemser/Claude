@@ -1,19 +1,19 @@
 <section id="run-ways" style="background:#F5F4EF;color:#18202A;font-family:'Inter', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:36px">
 <div style="display:flex;flex-direction:column;gap:12px">
-<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#1F7A45">Скрипты</p>
+<p style="font-family:'Roboto Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#1F7A45">Скрипты</p>
 <h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:700;line-height:1.1;color:#18202A">Способы запуска и типичные ошибки</h2>
 </div>
 <table style="font-size:27px;color:#18202A;font-family:'Inter', Arial, sans-serif">
 <tr><th style="width:34%">Команда</th><th style="width:16%">Нужно право x</th><th style="width:50%">Что происходит</th></tr>
-<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace;color:#1F7A45">./script.sh</td><td>да</td><td>новый процесс, интерпретатор из shebang</td></tr>
-<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace;color:#1F7A45">bash script.sh</td><td>нет</td><td>новый процесс bash, shebang не важен</td></tr>
-<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace;color:#1F7A45">source script.sh</td><td>нет</td><td>в текущей оболочке: переменные и cd остаются</td></tr>
-<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace;color:#1F7A45">bash -x script.sh</td><td>нет</td><td>печатает каждую команду перед выполнением</td></tr>
+<tr><td style="font-family:'Roboto Mono', 'Courier New', monospace;color:#1F7A45">./script.sh</td><td>да</td><td>новый процесс, интерпретатор из shebang</td></tr>
+<tr><td style="font-family:'Roboto Mono', 'Courier New', monospace;color:#1F7A45">bash script.sh</td><td>нет</td><td>новый процесс bash, shebang не важен</td></tr>
+<tr><td style="font-family:'Roboto Mono', 'Courier New', monospace;color:#1F7A45">source script.sh</td><td>нет</td><td>в текущей оболочке: переменные и cd остаются</td></tr>
+<tr><td style="font-family:'Roboto Mono', 'Courier New', monospace;color:#1F7A45">bash -x script.sh</td><td>нет</td><td>печатает каждую команду перед выполнением</td></tr>
 </table>
 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px">
-<div style="background:#FFFFFF;border:1px solid #DDE2E7;border-radius:16px;padding:24px 26px;display:flex;flex-direction:column;gap:8px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#B42318">Permission denied</p><p style="font-size:25px;line-height:1.4;color:#4A5563">Нет права x → chmod +x script.sh</p></div>
-<div style="background:#FFFFFF;border:1px solid #DDE2E7;border-radius:16px;padding:24px 26px;display:flex;flex-direction:column;gap:8px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#B42318">command not found</p><p style="font-size:25px;line-height:1.4;color:#4A5563">Забыли ./ перед именем файла</p></div>
-<div style="background:#FFFFFF;border:1px solid #DDE2E7;border-radius:16px;padding:24px 26px;display:flex;flex-direction:column;gap:8px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#B42318">required file not found</p><p style="font-size:25px;line-height:1.4;color:#4A5563">Ошибка в shebang, например #!bin/bash</p></div>
+<div style="background:#FFFFFF;border:1px solid #DDE2E7;border-radius:16px;padding:24px 26px;display:flex;flex-direction:column;gap:8px"><p style="font-family:'Roboto Mono', 'Courier New', monospace;font-size:24px;color:#B42318">Permission denied</p><p style="font-size:25px;line-height:1.4;color:#4A5563">Нет права x → chmod +x script.sh</p></div>
+<div style="background:#FFFFFF;border:1px solid #DDE2E7;border-radius:16px;padding:24px 26px;display:flex;flex-direction:column;gap:8px"><p style="font-family:'Roboto Mono', 'Courier New', monospace;font-size:24px;color:#B42318">command not found</p><p style="font-size:25px;line-height:1.4;color:#4A5563">Забыли ./ перед именем файла</p></div>
+<div style="background:#FFFFFF;border:1px solid #DDE2E7;border-radius:16px;padding:24px 26px;display:flex;flex-direction:column;gap:8px"><p style="font-family:'Roboto Mono', 'Courier New', monospace;font-size:24px;color:#B42318">required file not found</p><p style="font-size:25px;line-height:1.4;color:#4A5563">Ошибка в shebang, например #!bin/bash</p></div>
 </div>
 <aside>Покажите разницу между ./script.sh и source script.sh на примере скрипта с cd /tmp: после ./ мы остаёмся в той же папке, после source — оказываемся в /tmp. Три карточки внизу — самые частые сообщения об ошибках у новичков. В bash 5.2 при неверном shebang сообщение звучит как cannot execute: required file not found, в старых версиях — bad interpreter.</aside>
 </section>

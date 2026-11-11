@@ -31,7 +31,7 @@
   "faces": {
     "rubik": { "family": "Rubik", "href": "https://fonts.googleapis.com/css2?family=Rubik:wght@400..700&display=swap" },
     "inter": { "family": "Inter", "href": "https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" },
-    "jetbrains-mono": { "family": "JetBrains Mono", "href": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" }
+    "roboto-mono": { "family": "Roboto Mono", "href": "https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" }
   },
   "designSystems": []
 }

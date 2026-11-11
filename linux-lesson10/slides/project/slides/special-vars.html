@@ -1,26 +1,26 @@
 <section id="special-vars" style="background:#F5F4EF;color:#18202A;font-family:'Inter', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:36px">
 <div style="display:flex;flex-direction:column;gap:12px">
-<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#1F7A45">Variable</p>
+<p style="font-family:'Roboto Mono', 'Courier New', monospace;font-size:24px;letter-spacing:2px;text-transform:uppercase;color:#1F7A45">Variable</p>
 <h2 style="font-family:'Rubik', Arial, sans-serif;font-size:64px;font-weight:700;line-height:1.1;color:#18202A">Аргументы и специальные переменные</h2>
 </div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:start">
 <table style="font-size:27px;color:#18202A;font-family:'Inter', Arial, sans-serif">
 <tr><th style="width:34%">Переменная</th><th style="width:66%">Значение</th></tr>
-<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace;color:#1F7A45">$0</td><td>имя скрипта</td></tr>
-<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace;color:#1F7A45">$1 … $9, ${10}</td><td>аргументы по номеру</td></tr>
-<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace;color:#1F7A45">$#</td><td>количество аргументов</td></tr>
-<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace;color:#1F7A45">$@</td><td>все аргументы по отдельности</td></tr>
-<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace;color:#1F7A45">$?</td><td>код последней команды (0 — успех)</td></tr>
-<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace;color:#1F7A45">$$</td><td>номер процесса (PID)</td></tr>
-<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace;color:#1F7A45">$RANDOM</td><td>случайное число 0–32767</td></tr>
-<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace;color:#1F7A45">$HOME $USER $PWD</td><td>переменные окружения</td></tr>
+<tr><td style="font-family:'Roboto Mono', 'Courier New', monospace;color:#1F7A45">$0</td><td>имя скрипта</td></tr>
+<tr><td style="font-family:'Roboto Mono', 'Courier New', monospace;color:#1F7A45">$1 … $9, ${10}</td><td>аргументы по номеру</td></tr>
+<tr><td style="font-family:'Roboto Mono', 'Courier New', monospace;color:#1F7A45">$#</td><td>количество аргументов</td></tr>
+<tr><td style="font-family:'Roboto Mono', 'Courier New', monospace;color:#1F7A45">$@</td><td>все аргументы по отдельности</td></tr>
+<tr><td style="font-family:'Roboto Mono', 'Courier New', monospace;color:#1F7A45">$?</td><td>код последней команды (0 — успех)</td></tr>
+<tr><td style="font-family:'Roboto Mono', 'Courier New', monospace;color:#1F7A45">$$</td><td>номер процесса (PID)</td></tr>
+<tr><td style="font-family:'Roboto Mono', 'Courier New', monospace;color:#1F7A45">$RANDOM</td><td>случайное число 0–32767</td></tr>
+<tr><td style="font-family:'Roboto Mono', 'Courier New', monospace;color:#1F7A45">$HOME $USER $PWD</td><td>переменные окружения</td></tr>
 </table>
 <div style="display:flex;flex-direction:column;gap:16px">
 <div style="background:#12181F;border-radius:20px;padding:28px 32px">
-<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:25px;line-height:1.55;color:#E8EDF2"><span style="color:#F2B134">#!/bin/bash</span><span style="color:#8A97A6">&#160;&#160;&#160;# args.sh</span><br>echo <span style="color:#8EE3A9">"Скрипт: $0"</span><br>echo <span style="color:#8EE3A9">"Аргументов: $#"</span><br>echo <span style="color:#8EE3A9">"Все: $@"</span><br>echo <span style="color:#8EE3A9">"Первый: $1"</span></p>
+<p style="font-family:'Roboto Mono', 'Courier New', monospace;font-size:25px;line-height:1.55;color:#E8EDF2"><span style="color:#F2B134">#!/bin/bash</span><span style="color:#8A97A6">&#160;&#160;&#160;# args.sh</span><br>echo <span style="color:#8EE3A9">"Скрипт: $0"</span><br>echo <span style="color:#8EE3A9">"Аргументов: $#"</span><br>echo <span style="color:#8EE3A9">"Все: $@"</span><br>echo <span style="color:#8EE3A9">"Первый: $1"</span></p>
 </div>
 <div style="background:#12181F;border-radius:20px;padding:28px 32px">
-<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:25px;line-height:1.55;color:#E8EDF2"><span style="color:#3FB868">$</span> ./args.sh a b c<br><span style="color:#A9B4C0">Скрипт: ./args.sh</span><br><span style="color:#A9B4C0">Аргументов: 3</span><br><span style="color:#A9B4C0">Все: a b c</span><br><span style="color:#A9B4C0">Первый: a</span></p>
+<p style="font-family:'Roboto Mono', 'Courier New', monospace;font-size:25px;line-height:1.55;color:#E8EDF2"><span style="color:#3FB868">$</span> ./args.sh a b c<br><span style="color:#A9B4C0">Скрипт: ./args.sh</span><br><span style="color:#A9B4C0">Аргументов: 3</span><br><span style="color:#A9B4C0">Все: a b c</span><br><span style="color:#A9B4C0">Первый: a</span></p>
 </div>
 </div>
 </div>
