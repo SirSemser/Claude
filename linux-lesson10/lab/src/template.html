@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Лаб. №10 · Bash Shell Scripting</title>
+<style>/*CSS*/</style>
+</head>
+<body>
+<noscript><p style="padding:24px;font:16px sans-serif">Для работы нужен JavaScript. Откройте файл в Chrome, Edge или Firefox.</p></noscript>
+<div id="app" hidden>
+  <header class="top">
+    <div class="brand"><span class="logo">$_</span><div><b>Лаб. №10</b><small>Bash Shell Scripting</small></div></div>
+    <div class="who" id="who"></div>
+    <div class="stats">
+      <div class="stat" title="Время с начала работы"><span class="lbl">Время</span><b id="timer">00:00</b></div>
+      <div class="stat" title="Основные баллы из 100 и бонусные"><span class="lbl">Баллы</span><b id="score">0</b><span id="bonus" class="bonus"></span></div>
+    </div>
+    <div class="tools">
+      <button class="btn ghost" id="btnCheat" title="Шпаргалка по синтаксису bash">Шпаргалка</button>
+      <button class="btn ghost icon" id="btnZoomOut" title="Уменьшить шрифт">A−</button>
+      <button class="btn ghost icon" id="btnZoomIn" title="Увеличить шрифт">A+</button>
+      <button class="btn primary" id="btnDownload">Скачать результат</button>
+    </div>
+  </header>
+  <div class="progress"><div id="progressBar"></div></div>
+  <aside class="side" id="side"></aside>
+  <main class="main" id="main">
+    <section class="left" id="left"></section>
+    <section class="right" id="right">
+      <div class="panel editor-panel" id="editorPanel">
+        <div class="panel-head">
+          <span class="file" id="editorFile">script.sh</span>
+          <span class="saved" id="editorSaved"></span>
+          <span class="grow"></span>
+          <button class="btn small ghost-dark" id="btnReset" title="Вернуть начальную заготовку">Сбросить</button>
+        </div>
+        <div class="code" id="codeWrap">
+          <div class="gutter" id="gutter"></div>
+          <div class="code-area">
+            <pre class="hl" id="hl" aria-hidden="true"></pre>
+            <textarea id="code" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off" aria-label="Редактор скрипта"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="panel console-panel" id="consolePanel">
+        <div class="panel-head tabs">
+          <button class="tab" data-tab="out" id="tabOut">Вывод скрипта</button>
+          <button class="tab" data-tab="term" id="tabTerm">Терминал</button>
+          <span class="grow"></span>
+          <button class="btn small ghost-dark" id="btnClear" title="Очистить (Ctrl+L)">Очистить</button>
+        </div>
+        <div class="console-body">
+          <div class="outview" id="outView"></div>
+          <div class="term" id="term">
+            <div class="term-out" id="termOut"></div>
+            <div class="term-line"><span class="term-prompt" id="termPrompt"></span><input id="termIn" class="term-in" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Командная строка"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<div id="modalRoot"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script>/*JS*/</script>
+</body>
+</html>

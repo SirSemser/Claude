@@ -1,0 +1,23 @@
+# Эталонная последовательность команд для терминальных заданий T1–T5
+echo $SHELL
+echo $0
+cat /etc/shells
+getent passwd student
+grep dana /etc/passwd
+alias ll='ls -l'
+alias la='ls -la'
+alias h='history'
+alias
+ll
+echo "alias lab='cd ~/lab10'" >> ~/.bashrc
+source ~/.bashrc
+cd
+lab
+pwd
+cd ~/lab10
+printf '#!/bin/bash\n# Мой первый скрипт\necho "Hello, Linux!"\nwhoami\n' > hello.sh
+chmod +x hello.sh
+./hello.sh
+printf '#!/bin/bash\nmkdir -p dir1\n# This is a Bash comment\necho %s > dir1/file1.txt\nls -l dir1\ncat dir1/file1.txt\n' "'Welcome to Almaty!'" > script2.sh
+chmod 755 script2.sh
+./script2.sh
