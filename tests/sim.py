@@ -226,7 +226,7 @@ def fake_post(url, data=None, json=None, headers=None, timeout=None):
     prompt = body["messages"][0]["content"]
     SIM.prompts.append(prompt)
     assert headers["Authorization"].startswith("Bearer ")
-    assert body["max_tokens"] == 50 and body["temperature"] == 0
+    assert 0 < body["max_tokens"] <= 400 and body["temperature"] == 0
     SIM.advance(300)                       # задержка сети
     status, content = SIM.ai(prompt)
     return FakeResp(status, content)

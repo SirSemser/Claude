@@ -17,6 +17,11 @@ from Maix import GPIO
 # по адресам 0x300000..0xA00000 модели нет, в /flash свободно 2,6 МБ.
 MODEL_PATHS = ("/sd/20class.kmodel", "/flash/20class.kmodel", 0x500000)
 PIN_LCD_EN = 17                     # на A01-AI экран включается низким уровнем на IO17
+# Ориентация камеры. На наборе 2026-11-12 картинка была перевёрнута:
+# VFLIP=1 и HMIRROR=1 вместе дают поворот на 180°. Если станет зеркально,
+# поменяй HMIRROR на 0; если вверх ногами — VFLIP на 0.
+VFLIP = 1
+HMIRROR = 1
 CONF_MIN = 0.5                      # порог уверенности
 NMS = 0.3
 ANCHORS = (1.08, 1.19, 3.42, 4.41, 6.63, 11.38, 9.42, 5.11, 16.62, 10.52)
@@ -48,6 +53,8 @@ lcd.init()
 sensor.reset()
 sensor.set_pixformat(sensor.RGB565)
 sensor.set_framesize(sensor.QVGA)   # 320x240
+sensor.set_vflip(VFLIP)
+sensor.set_hmirror(HMIRROR)
 sensor.run(1)
 
 

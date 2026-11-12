@@ -233,20 +233,28 @@ def test_c1():
     for i in range(4):                       # снова bottle (тип уже в кэше)
         feed.append((t + 6000 + i * 200, b"OBJ,bottle,80\n"))
 
-    def ai(prompt):
-        return (200, "HOME" if "bottle" in prompt else "HUMAN")
+    def ai(prompt):                          # пакетный ответ, с мусорной строкой
+        return (200, "Sure!\nbottle = HOME\nperson: HUMAN\ndog=ANIMAL\ncar=SPACESHIP")
 
     def setup(sim):
         sim.uart_in = list(feed)
         sim.ai = ai
 
-    sim, ns, log = S.run(p("IIoT/C1/main.py"), 40000, setup)
+    import tempfile
+    tmp = tempfile.mkdtemp()
+    sim, ns, log = S.run(p("IIoT/C1/main.py"), 40000, setup, cwd=tmp)
     acks = [o for o in sim.uart_out if o[1] == b"ACK\n"]
     check("ACK на каждое корректное OBJ", len(acks) == 6 + 3 + 4, len(acks))
     check("тип bottle -> HOME", any(l.endswith(",bottle,87,HOME") for l in log), log)
     check("тип person -> HUMAN", any(l.endswith(",person,91,HUMAN") for l in log), log)
-    check("кэш: bottle не запрашивается повторно",
-          sum("bottle" in pr for pr in sim.prompts) == 1, sim.prompts)
+    check("одноразовый ключ: ровно 1 запрос за всю работу", len(sim.prompts) == 1, sim.prompts)
+    check("нет проверочного запроса при старте",
+          all("Reply with one word" not in pr for pr in sim.prompts), sim.prompts)
+    check("неверный тип (SPACESHIP) не принят", "car" not in ns["type_cache"], ns["type_cache"])
+
+    sim2, ns2, log2 = S.run(p("IIoT/C1/main.py"), 12000, setup, cwd=tmp)   # перезагрузка
+    check("после перезагрузки ключ не тратится", len(sim2.prompts) == 0, sim2.prompts)
+    check("типы взяты из ai_types.json", any(l.endswith(",bottle,87,HOME") for l in log2), log2[-6:])
     check("LINK LOST после 3 с тишины", "LINK LOST" in S.texts(S.screen_at(sim, t_end_feed + 3500)))
     scr = S.texts(S.screen_at(sim, t_end_feed + 6900))
     check("экран объекта", scr == ["AI CAMERA", "Obj: bottle", "Conf: 80%", "Type: HOME"], scr)

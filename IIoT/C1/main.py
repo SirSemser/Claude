@@ -55,6 +55,16 @@ TYPES = ("HUMAN", "ANIMAL", "TRANSPORT", "HOME")
 PROMPT = ("A camera detected an object of class '{}'. Classify it as one of: "
           "HUMAN, ANIMAL, TRANSPORT, HOME. Reply with exactly one word.")
 
+# Одноразовый ключ (на чемпионате ключ выполняет ровно ОДИН запрос).
+# True: при старте ключ не тратится на проверку; первый же запрос сразу
+# спрашивает типы для ВСЕХ 20 классов, ответ сохраняется в TYPES_FILE
+# и переживает перезагрузку. Повторных запросов больше нет.
+AI_ONE_SHOT = True
+TYPES_FILE = "ai_types.json"
+BATCH_PROMPT = ("Classify each object class as HUMAN, ANIMAL, TRANSPORT or HOME. "
+                "Answer with one line per class in the form class=TYPE "
+                "and nothing else. Classes: " + ", ".join(CLASSES))
+
 # ---------------- Оборудование ----------------
 i2c = SoftI2C(scl=Pin(PIN_SCL), sda=Pin(PIN_SDA))
 oled = ssd1306.SSD1306_I2C(128, 64, i2c)
@@ -120,13 +130,13 @@ def wifi_keepalive(now):
             print("WiFi retry:", e)
 
 
-def ai_request(prompt):
+def ai_request(prompt, max_tokens=50):
     if secrets is None or not wlan.isconnected():
         raise AIError("NO_WIFI")
     gc.collect()
     body = {"model": secrets.MODEL,
             "messages": [{"role": "user", "content": prompt}],
-            "max_tokens": 50, "temperature": 0}
+            "max_tokens": max_tokens, "temperature": 0}
     headers = {"Content-Type": "application/json",
                "Authorization": "Bearer " + secrets.API_KEY}
     r = requests.post(secrets.API_URL, data=json.dumps(body).encode(),
@@ -156,12 +166,87 @@ def pick_word(text, allowed):
     return found[0] if len(found) == 1 else None
 
 
+# ---------------- Одноразовый ключ: один пакетный запрос ----------------
+key_used = False          # ключ уже потрачен (ответ сохранён или сервер отказал)
+
+
+def load_types():
+    """Кэш типов с прошлого запуска: ключ после перезагрузки не тратится."""
+    global key_used
+    try:
+        with open(TYPES_FILE) as f:
+            d = json.load(f)
+        for k, v in d.items():
+            if k in CLASSES and v in TYPES:
+                type_cache[k] = v
+        key_used = True
+        log("AI_CACHE", len(type_cache))
+    except Exception:
+        pass                                   # файла нет — запрос ещё впереди
+
+
+def parse_batch(text):
+    """'bottle=HOME' по строкам -> {класс: тип}; мусорные строки отбрасываются."""
+    out = {}
+    for ln in text.replace(",", "\n").split("\n"):
+        for sep in ("=", ":", "-"):
+            if sep in ln:
+                k, v = ln.split(sep, 1)
+                k = k.strip(" .*-").lower()
+                v = v.strip(" .*").upper()
+                if k in CLASSES and v in TYPES:
+                    out[k] = v
+                break
+    return out
+
+
+def ai_batch():
+    """Единственный запрос: типы для всех классов сразу."""
+    global key_used
+    log("AI_REQ", "BATCH")
+    try:
+        d = parse_batch(ai_request(BATCH_PROMPT, max_tokens=400))
+    except AIError as e:
+        if str(e) != "NO_WIFI":                # сервер ответил ошибкой — ключ сгорел
+            key_used = True
+        log("AI_ERR", e)
+        return
+    except Exception as e:                     # таймаут/обрыв: потрачен ли ключ — неизвестно
+        key_used = True                        # повторять не рискуем
+        log("AI_ERR", e)
+        return
+    key_used = True
+    if not d:
+        log("AI_BAD")
+        return
+    type_cache.update(d)
+    log("AI_ANS", len(d))
+    try:
+        with open(TYPES_FILE, "w") as f:
+            json.dump(type_cache, f)
+    except Exception as e:
+        print("save types:", e)
+
+
 def ai_step(now):
     """Запрос типа для подтверждённого класса, которого нет в кэше."""
     global pending, shown_type, ai_wait_until
     if pending is None or time.ticks_diff(now, ai_wait_until) < 0:
         return
     cls, conf = pending
+    if AI_ONE_SHOT:
+        if not key_used:
+            ai_batch()
+            ai_wait_until = time.ticks_add(time.ticks_ms(), AI_MIN_GAP_MS)
+        typ = type_cache.get(cls, "?")
+        if not key_used:                       # не было Wi-Fi — попробуем позже
+            ai_wait_until = time.ticks_add(time.ticks_ms(), AI_RETRY_MS)
+        pending = None
+        log(cls, conf, typ)
+        if shown == cls:
+            shown_type = typ
+            mark()
+        return
     log("AI_REQ")
     try:
         word = pick_word(ai_request(PROMPT.format(cls)), TYPES)
@@ -210,7 +295,10 @@ def start_screen():
     oled.text("IoT STATION " + STATION, 0, 0)
     oled.show()
     wifi_ok = wifi_connect()
-    ai_ok = wifi_ok and ai_check()
+    if AI_ONE_SHOT:                            # ключ одноразовый: проверку не шлём,
+        ai_ok = wifi_ok and bool(getattr(secrets, "API_KEY", ""))  # READY = сеть + ключ есть
+    else:
+        ai_ok = wifi_ok and ai_check()
     oled.text("WiFi: " + ("OK" if wifi_ok else "FAIL"), 0, 24)
     oled.text("AI: " + ("READY" if ai_ok else "OFFLINE"), 0, 40)
     oled.show()
@@ -301,6 +389,7 @@ def print_stat():
 
 def main():
     global last_rx_ms, link_lost, next_stat, dirty
+    load_types()
     start_screen()
     draw()
     last_rx_ms = time.ticks_ms()
