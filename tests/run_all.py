@@ -26,6 +26,52 @@ def csv(log, field):
     return [l for l in log if l.split(",")[1:2] == [field]]
 
 
+# Старые сценарии проверяют обычный режим ИИ (запрос по расписанию).
+OFF = {"AI_ONE_SHOT = True": "AI_ONE_SHOT = False"}
+
+
+# ------------------------------------------------------------------ один ключ
+def test_one_shot():
+    print("Одноразовый ключ: A1, A2, B1, B2")
+    no_check = lambda sim: all("Reply with one word" not in pr for pr in sim.prompts)
+
+    def a1(sim):
+        sim.distance = lambda t: 15.0 if t > 12000 else 30.0
+        sim.ai = lambda pr: (200, "APPROACH")
+    sim, ns, log = S.run(p("IIoT/A1/main.py"), 45000, a1)
+    check("A1: экран запуска AI: READY без запроса",
+          S.texts(S.screen_at(sim, 2100))[-1] == "AI: READY", S.texts(S.screen_at(sim, 2100)))
+    check("A1: ровно 1 запрос, без проверочного", len(sim.prompts) == 1 and no_check(sim), sim.prompts)
+    check("A1: 1 строка AI_REQ", len(csv(log, "AI_REQ")) == 1, csv(log, "AI_REQ"))
+    check("A1: дальше AI_ERR,KEY_USED", any(l.endswith("AI_ERR,KEY_USED") for l in log), log[-5:])
+    check("A1: старый APPROACH не держит экран инвертированным", ns["ai_last"] is None, ns["ai_last"])
+
+    def a2(sim):
+        sim.ai = lambda pr: (200, "15")
+    sim, ns, log = S.run(p("IIoT/A2/main.py"), 200000, a2)
+    check("A2: ровно 1 запрос, без проверочного", len(sim.prompts) == 1 and no_check(sim), sim.prompts)
+    check("A2: HOLD от ИИ остаётся 15", ns["hold"] == 15, ns["hold"])
+
+    def b1(sim):
+        sim.adc_value = lambda t: 420
+        sim.ai = lambda pr: (200, "Threshold: 600")
+    sim, ns, log = S.run(p("IIoT/B1/main.py"), 100000, b1)
+    cal = [l for l in log if l.startswith("CAL,")]
+    check("B1: ровно 1 запрос, без проверочного", len(sim.prompts) == 1 and no_check(sim), sim.prompts)
+    check("B1: порог от ИИ принят", cal and cal[0].endswith(",600,AI"), cal)
+
+    tmp = tempfile.mkdtemp()
+    shutil.copy(p("IIoT/B2/users.json"), tmp)
+    alien = S.FakeCard([0x5B, 0x71, 0xE0, 0xA2])
+
+    def b2(sim):
+        sim.rfid = lambda t: alien if (5000 <= t < 5600 or 15000 <= t < 15600) else None
+        sim.ai = lambda pr: (200, "HIGH")
+    sim, ns, log = S.run(p("IIoT/B2/main.py"), 25000, b2, cwd=tmp)
+    check("B2: ровно 1 запрос, без проверочного", len(sim.prompts) == 1 and no_check(sim), sim.prompts)
+    check("B2: после сгоревшего ключа HIGH не залипает", ns["risk"] == "N/A", ns["risk"])
+
+
 # ------------------------------------------------------------------ A1
 def test_a1():
     print("A1 ultrasonic")
@@ -46,7 +92,7 @@ def test_a1():
         sim.distance = dist
         sim.ai = ai
 
-    sim, ns, log = S.run(p("IIoT/A1/main.py"), 45000, setup)
+    sim, ns, log = S.run(p("IIoT/A1/main.py"), 45000, setup, subs=OFF)
     start = S.texts(S.screen_at(sim, 2100))
     check("экран запуска", start == ["IoT STATION XX", "WiFi: OK", "AI: READY"], start)
     rows = [l for l in log if l.count(",") == 2 and l.split(",")[2] in ("NEAR", "MID", "FAR", "OUT")]
@@ -74,7 +120,7 @@ def test_a1_offline():
         sim.wifi_ok = False
         sim.distance = lambda t: 40.0
 
-    sim, ns, log = S.run(p("IIoT/A1/main.py"), 30000, setup)
+    sim, ns, log = S.run(p("IIoT/A1/main.py"), 30000, setup, subs=OFF)
     start = S.texts(S.screen_at(sim, 11000))       # 10 с ждём Wi-Fi при старте
     check("WiFi: FAIL / AI: OFFLINE", "WiFi: FAIL" in start and "AI: OFFLINE" in start, start)
     check("работает без сети (MID)", any(l.endswith(",40.0,MID") for l in log))
@@ -104,7 +150,7 @@ def test_a2():
             self.reader = pir
     S.FakePin.__init__ = pin_init
     try:
-        sim, ns, log = S.run(p("IIoT/A2/main.py"), 100000, setup)
+        sim, ns, log = S.run(p("IIoT/A2/main.py"), 100000, setup, subs=OFF)
     finally:
         S.FakePin.__init__ = orig
     cal = [l for l in log if l.startswith("CAL,")]
@@ -136,7 +182,7 @@ def test_b1():
         sim.adc_value = adc
         sim.ai = lambda pr: (200, "Threshold: 600")
 
-    sim, ns, log = S.run(p("IIoT/B1/main.py"), 125000, setup)
+    sim, ns, log = S.run(p("IIoT/B1/main.py"), 125000, setup, subs=OFF)
     states = [l.split(",")[3] for l in log if l.count(",") == 3 and l.split(",")[3] in ("HEAT", "CAL", "OK", "ALARM")]
     check("порядок HEAT->CAL->OK->ALARM->OK",
           states[0] == "HEAT" and "CAL" in states and "ALARM" in states and states[-1] == "OK", states[-3:])
@@ -157,7 +203,7 @@ def test_b1_bad_ai():
         sim.adc_value = lambda t: 450
         sim.ai = lambda pr: (200, "300")             # ниже фона -> недопустимо
 
-    sim, ns, log = S.run(p("IIoT/B1/main.py"), 95000, setup)
+    sim, ns, log = S.run(p("IIoT/B1/main.py"), 95000, setup, subs=OFF)
     cal = [l for l in log if l.startswith("CAL,")]
     check("порог DEF при недопустимом ответе", cal and cal[0].endswith(",500,DEF"), cal)
     check("AI_BAD в журнале", csv(log, "AI_BAD"))
@@ -171,7 +217,7 @@ def test_b2():
     good = S.FakeCard([0x9A, 0x3F, 0x12, 0xC4])
     alien = S.FakeCard([0x5B, 0x71, 0xE0, 0xA2])
     # «регистрируем» карту так, как это сделает register()
-    sim, ns, log = S.run(p("IIoT/B2/main.py"), 3000, lambda s: None, cwd=tmp)
+    sim, ns, log = S.run(p("IIoT/B2/main.py"), 3000, lambda s: None, cwd=tmp, subs=OFF)
     S.SIM.limit = 10 ** 9
     S.SIM.rfid = lambda t: good
     old = os.getcwd()
@@ -194,7 +240,7 @@ def test_b2():
         sim.rfid = card
         sim.ai = lambda pr: (200, "HIGH")
 
-    sim, ns, log = S.run(p("IIoT/B2/main.py"), 30000, setup, cwd=tmp)
+    sim, ns, log = S.run(p("IIoT/B2/main.py"), 30000, setup, cwd=tmp, subs=OFF)
     rows = [l for l in log if l.count(",") == 4]
     check("журнал OK, visits 1 и 2", any(l.endswith(",9A3F12C4,ASKAR,OK,1") for l in rows)
           and any(l.endswith(",9A3F12C4,ASKAR,OK,2") for l in rows), rows)
@@ -212,7 +258,7 @@ def test_b2():
     def setup2(sim):
         sim.rfid = lambda t: good if 4000 <= t < 4500 else None
 
-    sim, ns, log = S.run(p("IIoT/B2/main.py"), 9000, setup2, cwd=tmp)
+    sim, ns, log = S.run(p("IIoT/B2/main.py"), 9000, setup2, cwd=tmp, subs=OFF)
     check("подмена имени -> MISMATCH", any(l.endswith(",9A3F12C4,-,MISMATCH,-") for l in log), log[-5:])
 
 
@@ -311,7 +357,7 @@ def test_mb():
 
 
 for test in (test_a1, test_a1_offline, test_a2, test_b1, test_b1_bad_ai,
-             test_b2, test_c1, test_ma, test_mb):
+             test_b2, test_c1, test_ma, test_mb, test_one_shot):
     try:
         test()
     except Exception as e:                    # сам тест упал

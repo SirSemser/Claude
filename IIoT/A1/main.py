@@ -127,10 +127,26 @@ class AIError(Exception):
     pass
 
 
+# Одноразовый ключ (на чемпионате ключ выполняет ровно ОДИН запрос).
+# True: при старте проверочный запрос не шлём; первый запрос уходит в сеть,
+# все следующие сразу дают AI_ERR,KEY_USED без сети, и модуль работает
+# на запасном варианте (как при ошибке ИИ). Обычный режим: False.
+AI_ONE_SHOT = True
+key_used = False
+
+
+def key_spent():
+    return AI_ONE_SHOT and key_used
+
+
 def ai_request(prompt):
     """POST в Chat Completions. Возвращает текст ответа или бросает исключение."""
     if secrets is None or not wlan.isconnected():
         raise AIError("NO_WIFI")
+    global key_used
+    if key_spent():
+        raise AIError("KEY_USED")                  # одноразовый ключ уже потрачен
+    key_used = True                                # запрос уходит в сеть
     gc.collect()                                   # TLS требует много памяти
     body = {"model": secrets.MODEL,
             "messages": [{"role": "user", "content": prompt}],
@@ -156,7 +172,8 @@ def pick_word(text, allowed):
 
 def ai_check():
     """Проверочный запрос при запуске -> True, если сервис отвечает."""
-    log("AI_REQ")
+    if not key_spent():                        # без сети AI_REQ не пишем
+        log("AI_REQ")
     try:
         ai_request("Reply with one word: OK")   # важен сам код 200
         log("AI_ANS", "OK")
@@ -174,7 +191,8 @@ def ai_step(now):
     values = ",".join(["%.1f" % v for v in history])
     ai_text = "..."
     draw()                                         # показать "AI: ..." до запроса
-    log("AI_REQ")
+    if not key_spent():                        # без сети AI_REQ не пишем
+        log("AI_REQ")
     try:
         word = pick_word(ai_request(PROMPT.format(values)), AI_WORDS)
         if word is None:
@@ -263,7 +281,10 @@ def start_screen():
     oled.text("IoT STATION " + STATION, 0, 0)
     oled.show()
     wifi_ok = wifi_connect()
-    ai_ok = wifi_ok and ai_check()
+    if AI_ONE_SHOT:                            # ключ одноразовый: проверку не шлём
+        ai_ok = wifi_ok and bool(getattr(secrets, "API_KEY", ""))
+    else:
+        ai_ok = wifi_ok and ai_check()
     oled.text("WiFi: " + ("OK" if wifi_ok else "FAIL"), 0, 24)
     oled.text("AI: " + ("READY" if ai_ok else "OFFLINE"), 0, 40)
     oled.show()

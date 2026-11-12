@@ -96,6 +96,18 @@ class AIError(Exception):
     pass
 
 
+# Одноразовый ключ (на чемпионате ключ выполняет ровно ОДИН запрос).
+# True: при старте проверочный запрос не шлём; первый запрос уходит в сеть,
+# все следующие сразу дают AI_ERR,KEY_USED без сети, и модуль работает
+# на запасном варианте (как при ошибке ИИ). Обычный режим: False.
+AI_ONE_SHOT = True
+key_used = False
+
+
+def key_spent():
+    return AI_ONE_SHOT and key_used
+
+
 def wifi_connect(timeout_ms=10000):
     if secrets is None:
         return False
@@ -129,6 +141,10 @@ def wifi_keepalive(now):
 def ai_request(prompt):
     if secrets is None or not wlan.isconnected():
         raise AIError("NO_WIFI")
+    global key_used
+    if key_spent():
+        raise AIError("KEY_USED")                  # одноразовый ключ уже потрачен
+    key_used = True                                # запрос уходит в сеть
     gc.collect()
     body = {"model": secrets.MODEL,
             "messages": [{"role": "user", "content": prompt}],
@@ -146,7 +162,8 @@ def ai_request(prompt):
 
 
 def ai_check():
-    log("AI_REQ")
+    if not key_spent():                        # без сети AI_REQ не пишем
+        log("AI_REQ")
     try:
         ai_request("Reply with one word: OK")
         log("AI_ANS", "OK")
@@ -177,7 +194,8 @@ def ai_step(now):
     prompt = PROMPT.format(stat_motion, stat_lamp_ms // 1000,
                            stat_low_ms // 1000, hold)
     stat_motion, stat_lamp_ms, stat_low_ms = 0, 0, 0   # новая минута
-    log("AI_REQ")
+    if not key_spent():                        # без сети AI_REQ не пишем
+        log("AI_REQ")
     try:
         nums = integers_in(ai_request(prompt))
         if len(nums) == 1 and HOLD_MIN <= nums[0] <= HOLD_MAX:
@@ -293,7 +311,10 @@ def start_screen():
     oled.text("IoT STATION " + STATION, 0, 0)
     oled.show()
     wifi_ok = wifi_connect()
-    ai_ok = wifi_ok and ai_check()
+    if AI_ONE_SHOT:                            # ключ одноразовый: проверку не шлём
+        ai_ok = wifi_ok and bool(getattr(secrets, "API_KEY", ""))
+    else:
+        ai_ok = wifi_ok and ai_check()
     oled.text("WiFi: " + ("OK" if wifi_ok else "FAIL"), 0, 24)
     oled.text("AI: " + ("READY" if ai_ok else "OFFLINE"), 0, 40)
     oled.show()

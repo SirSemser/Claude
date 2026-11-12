@@ -339,12 +339,16 @@ def install(limit_ms):
     return SIM
 
 
-def run(path, limit_ms, setup=None, cwd=None):
-    """Выполняет main.py до limit_ms виртуального времени. -> (sim, globals, лог)."""
+def run(path, limit_ms, setup=None, cwd=None, subs=None):
+    """Выполняет main.py до limit_ms виртуального времени. -> (sim, globals, лог).
+    subs: {"строка": "замена"} в исходнике (например, выключить AI_ONE_SHOT)."""
     sim = install(limit_ms)
     if setup:
         setup(sim)
     src = open(path, encoding="utf-8").read()
+    for a, b in (subs or {}).items():
+        assert a in src, a
+        src = src.replace(a, b)
     ns = {"__name__": "__main__"}
     out = io.StringIO()
     old = os.getcwd()
