@@ -10,9 +10,13 @@ import time
 import KPU as kpu
 from machine import UART
 from fpioa_manager import fm
+from Maix import GPIO
 
 # ---------------- Константы ----------------
-MODEL_PATH = "/sd/20class.kmodel"   # или адрес во флеше, напр. 0x500000
+# Где искать модель (по порядку). На наборе 2026-11-12: SD нет, во флеше
+# по адресам 0x300000..0xA00000 модели нет, в /flash свободно 2,6 МБ.
+MODEL_PATHS = ("/sd/20class.kmodel", "/flash/20class.kmodel", 0x500000)
+PIN_LCD_EN = 17                     # на A01-AI экран включается низким уровнем на IO17
 CONF_MIN = 0.5                      # порог уверенности
 NMS = 0.3
 ANCHORS = (1.08, 1.19, 3.42, 4.41, 6.63, 11.38, 9.42, 5.11, 16.62, 10.52)
@@ -37,13 +41,32 @@ fm.register(PIN_RX, fm.fpioa.UART1_RX, force=True)
 uart = UART(UART.UART1, BAUD, 8, None, 1, timeout=10, read_buf_len=1024)
 
 # ---------------- Камера, экран, модель ----------------
+fm.register(PIN_LCD_EN, fm.fpioa.GPIO0, force=True)
+lcd_en = GPIO(GPIO.GPIO0, GPIO.OUT)
+lcd_en.value(0)                     # без этого экран модуля остаётся тёмным
 lcd.init()
 sensor.reset()
 sensor.set_pixformat(sensor.RGB565)
 sensor.set_framesize(sensor.QVGA)   # 320x240
 sensor.run(1)
-task = kpu.load(MODEL_PATH)
-kpu.init_yolo2(task, CONF_MIN, NMS, 5, ANCHORS)   # 5 = число якорей
+
+
+def load_model():
+    for p in MODEL_PATHS:
+        try:
+            t = kpu.load(p)
+            kpu.init_yolo2(t, CONF_MIN, NMS, 5, ANCHORS)   # 5 = число якорей
+            print("MODEL", p)
+            return t
+        except Exception as e:
+            print("NO MODEL", p, e)
+    return None
+
+
+task = load_model()
+# Без модели — режим проверки связи: раз в 200 мс шлём OBJ,bottle,87,
+# на экране модуля надпись NO MODEL: DEMO. С моделью этот режим не включается.
+DEMO = task is None
 clock = time.clock()
 
 last_obj = 0
@@ -54,7 +77,12 @@ rx = b""
 while True:
     clock.tick()
     img = sensor.snapshot()
-    objs = kpu.run_yolo2(task, img)
+    objs = None
+    if not DEMO:
+        try:
+            objs = kpu.run_yolo2(task, img)
+        except Exception as e:
+            print("KPU", e)
     best = None
     if objs:
         for o in objs:
@@ -67,7 +95,12 @@ while True:
                 best = o                     # передаём самый уверенный объект
 
     now = time.ticks_ms()
-    if best is not None:
+    if DEMO:
+        if time.ticks_diff(now, last_obj) >= OBJ_GAP_MS:
+            uart.write("OBJ,bottle,87\n")
+            last_obj = now
+        img.draw_string(2, 200, "NO MODEL: DEMO", color=RED, scale=2)
+    elif best is not None:
         if time.ticks_diff(now, last_obj) >= OBJ_GAP_MS:
             pct = int(best.value() * 100 + 0.5)
             uart.write("OBJ,%s,%d\n" % (CLASSES[best.classid()], pct))
