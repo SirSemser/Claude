@@ -4,7 +4,15 @@
 #  B1: SeekCard / NO_CARD   B2: Anticoll + select_tag   B3: auth, write, read
 # =====================================================================
 import time
-from machine import Pin, SoftI2C
+from machine import Pin
+try:
+    from machine import SoftI2C          # MicroPython >= 1.14
+except ImportError:                      # 1.13 (прошивка набора ZL-02B)
+    from machine import I2C
+
+    def SoftI2C(scl, sda):
+        return I2C(-1, scl=scl, sda=sda)
+
 import ssd1306
 import rc522
 
