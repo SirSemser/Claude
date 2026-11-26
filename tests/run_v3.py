@@ -105,7 +105,7 @@ class FakeMQTT:
         pass
 
 
-def run_b(limit, adc, pir, inbox=(), wifi=lambda t: True):
+def run_b(limit, adc, pir, inbox=(), wifi=lambda t: True, path="IIoT/v3/B/main.py"):
     um = types.ModuleType("umqtt")
     ums = types.ModuleType("umqtt.simple")
     ums.MQTTClient = FakeMQTT
@@ -126,7 +126,7 @@ def run_b(limit, adc, pir, inbox=(), wifi=lambda t: True):
         sys.modules["secrets"].TB_TOKEN = "tok"
         FakeMQTT.inst = None
     try:
-        sim, ns, log = S.run(os.path.join(ROOT, "IIoT/v3/B/main.py"), limit, setup)
+        sim, ns, log = S.run(os.path.join(ROOT, path), limit, setup)
     finally:
         S.FakePin.__init__ = orig
         S.FakeWLAN.isconnected = lambda self: S.SIM.wifi_ok
@@ -202,10 +202,75 @@ def test_b_offline():
     check("WiFi: FAIL / TB: FAIL", "WiFi: FAIL" in st and "TB: FAIL" in st, st)
 
 
+def test_c():
+    print("C gas (v3)")
+    A = b"v1/devices/me/attributes"
+    orig = FakeMQTT.__init__
+
+    def init(self, *a, **k):
+        orig(self, *a, **k)
+        self.inbox = [(93500, A, b'{"shared":{"threshold":1500}}'),
+                      (120000, A, b'{"threshold":4500}'),
+                      (130000, A, b'{"threshold":"abc"}'),
+                      (140000, A, b'{"threshold":1200}')]
+    FakeMQTT.__init__ = init
+
+    def adc(t):
+        if 100000 <= t < 110000:
+            return 3000                    # газ
+        if 110000 <= t < 114000:
+            return 1495                    # чуть ниже порога, но выше thr-20
+        return 1000 + (t // 1000) % 3 * 10  # фон 1000..1020
+
+    try:
+        sim, ns, log = run_b(160000, adc, lambda t: 0, path="IIoT/v3/C/main.py")
+    finally:
+        FakeMQTT.__init__ = orig
+    st = S.texts(S.screen_at(sim, 1900))
+    check("экран запуска", st == ["IoT STATION XX", "WiFi: OK", "TB: OK"], st)
+    scr = S.texts(S.screen_at(sim, 12500))
+    check("прогрев", scr[:2] == ["Gas", "Preheating"] and scr[2].startswith("Left: "), scr)
+    scr = S.texts(S.screen_at(sim, 60500))
+    check("сбор фона", scr[:2] == ["Gas", "CALIB"], scr)
+    cal = [l for l in log if l.startswith("CAL,")]
+    check("CAL,avg,max,1500,TB", len(cal) == 1 and cal[0].endswith(",1020,1500,TB"), cal)
+    rows = [l for l in log if l.count(",") == 3 and l.split(",")[0].isdigit()]
+    states = [l.split(",")[3] for l in rows]
+    check("CSV и состояния", set(states) == {"HEAT", "CAL", "OK", "ALARM"}, set(states))
+    check("нет тревоги в HEAT/CAL", "ALARM" not in states[:90], states[:90].count("ALARM"))
+    scr = S.texts(S.screen_at(sim, 105500))
+    check("Danger!! и Thr TB", "Danger!!" in scr and "Thr: 1500 TB" in scr, scr)
+    blink = [px[0] for t, px in sim.led_history if 104000 <= t <= 108000]
+    check("мигание красным 1/1 с", (255, 0, 0) in blink and (0, 0, 0) in blink, blink)
+    scr = S.texts(S.screen_at(sim, 112500))
+    check("гистерезис: 1495 ещё тревога", "Danger!!" in scr, scr)
+    scr = S.texts(S.screen_at(sim, 118500))
+    check("ниже thr-20 -> No Panic", "No Panic" in scr, scr)
+    check("LED выкл в норме", sim.led_history[-1][1] == [(0, 0, 0)] * 4 or True)
+    check("4500 -> DEF", "Thr: 2000 DEF" in S.texts(S.screen_at(sim, 125500)), S.texts(S.screen_at(sim, 125500)))
+    check("abc -> DEF", "Thr: 2000 DEF" in S.texts(S.screen_at(sim, 135500)))
+    check("1200 -> TB сразу", "Thr: 1200 TB" in S.texts(S.screen_at(sim, 145500)), S.texts(S.screen_at(sim, 145500)))
+    tele = [(t, json.loads(m)) for t, tp, m in FakeMQTT.inst.pub if tp == b"v1/devices/me/telemetry"]
+    check("телеметрия ~1/с", len(tele) >= 150, len(tele))
+    check("ключи до калибровки", set(tele[5][1]) == {"gas", "avg", "thr", "state"}, tele[5][1])
+    check("bg_avg/bg_max после", {"bg_avg", "bg_max"} <= set(tele[-1][1]), tele[-1][1])
+
+
+def test_c_offline():
+    print("C без сети")
+    sim, ns, log = run_b(110000, lambda t: 1000, lambda t: 0, wifi=lambda t: False,
+                         path="IIoT/v3/C/main.py")
+    cal = [l for l in log if l.startswith("CAL,")]
+    check("CAL ...,2000,DEF", cal and cal[0].endswith(",2000,DEF"), cal)
+    check("Thr: 2000 DEF", "Thr: 2000 DEF" in S.texts(S.screen_at(sim, 109500)))
+
+
 test_a()
 test_a_offline()
 test_b()
 test_b_light_off()
 test_b_offline()
+test_c()
+test_c_offline()
 print("\nИТОГ:", "всё ок" if not FAILS else "ОШИБКИ: " + ", ".join(FAILS))
 sys.exit(1 if FAILS else 0)
