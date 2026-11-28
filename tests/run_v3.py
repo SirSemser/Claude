@@ -265,6 +265,53 @@ def test_c_offline():
     check("Thr: 2000 DEF", "Thr: 2000 DEF" in S.texts(S.screen_at(sim, 109500)))
 
 
+def test_e():
+    print("E ESP32 (v3)")
+
+    def setup(sim):
+        sim.ai = lambda pr: (200, "OK")
+        sim.uart_in = [(3000, b"OBJ,bottle,87\n"), (3200, b"OBJ,dog,150\n"),
+                       (3400, b"OBJ,cat,90\n"), (3600, b"#$%garbage\n"),
+                       (3800, b"OBJ,person,9"), (3900, b"1\n"),
+                       (5000, b"NONE\n"), (12000, b"OBJ,car,64\n")]
+    sim, ns, log = S.run(os.path.join(ROOT, "IIoT/v3/E/main.py"), 14000, setup)
+    st = S.texts(S.screen_at(sim, 2100))
+    check("экран запуска", st == ["IoT STATION XX", "WiFi: OK", "AI: READY"], st)
+    check("один проверочный запрос", len(sim.prompts) == 1, sim.prompts)
+    check("AI_OK в журнале", any(l.endswith(",AI_OK") for l in log), log[:3])
+    check("экран объекта", S.texts(S.screen_at(sim, 3100)) == ["AI CAMERA", "Obj: bottle", "Conf: 87%"],
+          S.texts(S.screen_at(sim, 3100)))
+    check("150 и чужой класс игнорируются", S.texts(S.screen_at(sim, 3700))[1] == "Obj: bottle",
+          S.texts(S.screen_at(sim, 3700)))
+    check("строка по частям", "Obj: person" in S.texts(S.screen_at(sim, 4000)))
+    rec = [l for l in log if l.count(",") == 2 and l.split(",")[1] in ("bottle", "person", "car")]
+    check("журнал время,класс,%", [r.split(",", 1)[1] for r in rec] == ["bottle,87", "person,91", "car,64"], rec)
+    acks = [b for t, b in sim.uart_out if b == b"ACK\n"]
+    check("ACK на каждый OBJ", len(acks) == 3, sim.uart_out)
+    check("No object", S.texts(S.screen_at(sim, 5100)) == ["AI CAMERA", "No object"])
+    check("LINK LOST через 3 с", S.texts(S.screen_at(sim, 8100)) == ["AI CAMERA", "LINK LOST"],
+          S.texts(S.screen_at(sim, 8100)))
+    check("связь вернулась без перезагрузки", "Obj: car" in S.texts(S.screen_at(sim, 12100)))
+
+
+def test_e_offline():
+    print("E без сети / ИИ ошибка")
+
+    def setup(sim):
+        sim.wifi_ok = False
+        sim.uart_in = [(13000, b"OBJ,dog,77\n")]
+    sim, ns, log = S.run(os.path.join(ROOT, "IIoT/v3/E/main.py"), 14000, setup)
+    st = S.texts(S.screen_at(sim, 11900))
+    check("WiFi: FAIL / AI: OFFLINE", st == ["IoT STATION XX", "WiFi: FAIL", "AI: OFFLINE"], st)
+    check("AI_ERR,NO_WIFI", any(l.endswith(",AI_ERR,NO_WIFI") for l in log))
+    check("распознавание работает", "Obj: dog" in S.texts(S.screen_at(sim, 13100)))
+
+    sim, ns, log = S.run(os.path.join(ROOT, "IIoT/v3/E/main.py"), 3000,
+                         lambda s: setattr(s, "ai", lambda pr: (401, "")))
+    check("AI_ERR,401 -> OFFLINE", any(l.endswith(",AI_ERR,401") for l in log)
+          and "AI: OFFLINE" in S.texts(S.screen_at(sim, 2000)), log)
+
+
 test_a()
 test_a_offline()
 test_b()
@@ -272,5 +319,7 @@ test_b_light_off()
 test_b_offline()
 test_c()
 test_c_offline()
+test_e()
+test_e_offline()
 print("\nИТОГ:", "всё ок" if not FAILS else "ОШИБКИ: " + ", ".join(FAILS))
 sys.exit(1 if FAILS else 0)
